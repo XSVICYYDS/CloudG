@@ -321,10 +321,11 @@ function updateDownloadStatus(message, progress, total) {
   }
 }
 
-function rawFileUrl(file) {
+function downloadFileUrl(file) {
   try {
-    const url = new URL(file.downloadUrl);
-    if (url.protocol !== "https:" || !["raw.githubusercontent.com", "github.com"].includes(url.hostname)) {
+    const url = new URL(file.downloadUrl, document.baseURI);
+    const downloadsRoot = new URL("./downloads/", document.baseURI);
+    if (url.origin !== location.origin || !url.pathname.startsWith(downloadsRoot.pathname)) {
       throw new Error("不支持的下载地址");
     }
     return url.href;
@@ -349,7 +350,7 @@ async function streamToFile(file, handle, button) {
       let response;
       try {
         const headers = offset > 0 ? { Range: `bytes=${offset}-` } : {};
-        response = await fetch(rawFileUrl(file), { headers, cache: "no-store" });
+        response = await fetch(downloadFileUrl(file), { headers, cache: "no-store" });
       } catch (error) {
         if (retries >= 3) throw error;
         retries += 1;
@@ -405,7 +406,7 @@ async function downloadFile(file, button) {
   button.disabled = true;
   button.setAttribute("aria-busy", "true");
   try {
-    const url = rawFileUrl(file);
+    const url = downloadFileUrl(file);
     if ("showSaveFilePicker" in window && file.size > 0) {
       const handle = await window.showSaveFilePicker({ suggestedName: file.name });
       updateDownloadStatus(`准备下载 ${file.name}`, 0, file.size);

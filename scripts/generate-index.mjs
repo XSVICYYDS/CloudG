@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdir, stat, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,6 +19,7 @@ const defaultIgnore = [".git/", ".github/", "site/", "scripts/", "docs/", "READM
 const ignore = (args.get("ignore") || defaultIgnore.join(","))
   .split(",").map((item) => item.trim().replaceAll("\\", "/")).filter(Boolean);
 const outputPath = path.join(repoRoot, "site", "data", "files.json");
+const downloadsDir = path.join(repoRoot, "site", "downloads");
 
 function isIgnored(filePath) {
   return ignore.some((item) => item.endsWith("/")
@@ -40,8 +41,7 @@ async function isGitTracked() {
 
 function downloadUrl(filePath) {
   const encodedPath = filePath.split("/").map(encodeURIComponent).join("/");
-  const encodedRef = ref.split("/").map(encodeURIComponent).join("/");
-  return `https://raw.githubusercontent.com/${repository}/${encodedRef}/${encodedPath}`;
+  return `./downloads/${encodedPath}`;
 }
 
 if (!repository || !/^[\w.-]+\/[\w.-]+$/.test(repository)) {
@@ -50,6 +50,7 @@ if (!repository || !/^[\w.-]+\/[\w.-]+$/.test(repository)) {
 
 const trackedFiles = await isGitTracked();
 const files = [];
+await rm(downloadsDir, { recursive: true, force: true });
 for (const gitPath of trackedFiles) {
   const normalizedPath = gitPath.replaceAll("\\", "/");
   if (subdir && normalizedPath !== subdir && !normalizedPath.startsWith(`${subdir}/`)) continue;
@@ -57,9 +58,18 @@ for (const gitPath of trackedFiles) {
   if (!relativePath || isIgnored(normalizedPath)) continue;
   const extension = path.posix.extname(relativePath).slice(1).toLowerCase();
 
-  const absolutePath = path.join(sourceDir, ...normalizedPath.split("/"));
+  const absolutePath = path.resolve(sourceDir, ...normalizedPath.split("/"));
+  if (!absolutePath.startsWith(`${sourceDir}${path.sep}`)) {
+    throw new Error(`源文件路径超出仓库目录：${normalizedPath}`);
+  }
   const fileStat = await stat(absolutePath);
   if (!fileStat.isFile()) continue;
+  const outputFile = path.resolve(downloadsDir, ...relativePath.split("/"));
+  if (!outputFile.startsWith(`${downloadsDir}${path.sep}`)) {
+    throw new Error(`下载文件路径无效：${relativePath}`);
+  }
+  await mkdir(path.dirname(outputFile), { recursive: true });
+  await copyFile(absolutePath, outputFile);
   files.push({
     name: path.posix.basename(relativePath),
     path: relativePath,
