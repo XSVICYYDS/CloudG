@@ -1,0 +1,39 @@
+{
+  "repository": "XSVICYYDS/CloudG",
+  "ref": "main",
+  "generatedAt": "2026-10-18T06:24:48.704Z",
+  "files": [
+    {
+      "name": "Plain Craft Launcher 2.exe",
+      "path": "Plain Craft Launcher 2.exe",
+      "size": 5750272,
+      "updatedAt": "2026-09-10T20:20:04+08:00",
+      "extension": "exe",
+      "downloadUrl": "https://raw.githubusercontent.com/XSVICYYDS/CloudG/main/Plain%20Craft%20Launcher%202.exe"
+    },
+    {
+      "name": "全面测试并发布网站.zip",
+      "path": "全面测试并发布网站.zip",
+      "size": 237271,
+      "updatedAt": "2026-09-13T13:08:29Z",
+      "extension": "zip",
+      "downloadUrl": "https://raw.githubusercontent.com/XSVICYYDS/CloudG/main/%E5%85%A8%E9%9D%A2%E6%B5%8B%E8%AF%95%E5%B9%B6%E5%8F%91%E5%B8%83%E7%BD%91%E7%AB%99.zip"
+    },
+    {
+      "name": "我的网站",
+      "path": "我的网站",
+      "size": 60,
+      "updatedAt": "2026-09-10T20:08:04+08:00",
+      "extension": "",
+      "downloadUrl": "https://raw.githubusercontent.com/XSVICYYDS/CloudG/main/%E6%88%91%E7%9A%84%E7%BD%91%E7%AB%99"
+    },
+    {
+      "name": "闹钟.py",
+      "path": "闹钟.py",
+      "size": 30465,
+      "updatedAt": "2026-09-13T21:14:16+08:00",
+      "extension": "py",
+      "downloadUrl": "https://raw.githubusercontent.com/XSVICYYDS/CloudG/main/%E9%97%B9%E9%92%9F.py"
+    }
+  ]
+}
