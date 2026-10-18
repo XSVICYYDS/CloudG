@@ -1,0 +1,18 @@
+name: Notify file library when downloads change
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch site rebuild
+        env:
+          GH_TOKEN: ${{ secrets.SITE_SYNC_TOKEN }}
+        run: |
+          gh api repos/XSVICYYDS/CloudG/dispatches \
+            --method POST \
+            --field 'event_type=download-source-updated' \
+            --field "client_payload[ref]=${GITHUB_REF_NAME}"

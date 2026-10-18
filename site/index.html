@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#f5f7fb">
+    <meta name="description" content="安全、便捷地浏览和下载文件。">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://raw.githubusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+    <title>文件下载中心</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <main id="auth-view" class="auth-view" aria-labelledby="auth-title" hidden>
+      <section class="auth-card">
+        <div class="brand-mark" aria-hidden="true">F</div>
+        <p class="eyebrow">PRIVATE FILE LIBRARY</p>
+        <h1 id="auth-title">文件下载中心</h1>
+        <p class="muted">请输入访问密钥以继续</p>
+        <form id="auth-form">
+          <label for="access-key">访问密钥</label>
+          <div class="input-wrap">
+            <input id="access-key" name="key" type="password" autocomplete="current-password"
+              placeholder="输入访问密钥" required>
+            <button class="icon-button" id="toggle-key" type="button" aria-label="显示密钥">显示</button>
+          </div>
+          <p id="auth-error" class="form-message" role="alert" aria-live="polite"></p>
+          <button class="button button-primary auth-submit" type="submit">验证并进入 <span aria-hidden="true">→</span></button>
+        </form>
+        <p class="auth-footnote">访问状态仅保存在此浏览器中，不会保存密钥。</p>
+      </section>
+    </main>
+
+    <div id="app-view" hidden>
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="文件下载中心首页">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>文件下载中心</span>
+        </a>
+        <div class="topbar-actions">
+          <span id="repo-label" class="repo-label"></span>
+          <button id="lock-button" class="button button-quiet" type="button">锁定</button>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <section class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">FILE LIBRARY</p>
+            <h1>需要的文件，<span>一目了然。</span></h1>
+            <p class="hero-description">浏览文件、快速筛选，并从仓库直链下载最新版本。</p>
+          </div>
+          <div class="hero-stat">
+            <span id="file-count" class="stat-value">—</span>
+            <span class="stat-label">个可用文件</span>
+          </div>
+        </section>
+
+        <section class="library" aria-labelledby="library-title">
+          <div class="library-heading">
+            <div>
+              <h2 id="library-title">所有文件</h2>
+              <p id="library-subtitle" class="muted">正在加载文件索引…</p>
+            </div>
+            <button id="refresh-button" class="button button-secondary" type="button">
+              <span aria-hidden="true">↻</span> 刷新索引
+            </button>
+          </div>
+
+          <div class="toolbar">
+            <label class="search-box" for="search-input">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <input id="search-input" type="search" placeholder="搜索文件名、类型或路径…" autocomplete="off">
+              <kbd>/</kbd>
+            </label>
+            <label class="select-wrap" for="type-filter">
+              <span class="sr-only">筛选文件类型</span>
+              <select id="type-filter">
+                <option value="">所有类型</option>
+              </select>
+            </label>
+            <label class="select-wrap sort-select" for="sort-order">
+              <span class="sr-only">排序方式</span>
+              <select id="sort-order">
+                <option value="name-asc">名称 A–Z</option>
+                <option value="name-desc">名称 Z–A</option>
+                <option value="updated-desc">最近更新</option>
+                <option value="size-desc">文件最大</option>
+                <option value="size-asc">文件最小</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="download-status" class="download-status" role="status" aria-live="polite" hidden>
+            <div class="download-status-copy">
+              <span id="download-message">准备下载…</span>
+              <span id="download-progress-label"></span>
+            </div>
+            <progress id="download-progress" max="100" value="0"></progress>
+          </div>
+
+          <div id="file-list" class="file-list" aria-live="polite"></div>
+          <div class="load-more-wrap">
+            <button id="load-more" class="button button-secondary" type="button" hidden>显示更多文件</button>
+          </div>
+          <div id="empty-state" class="empty-state" hidden>
+            <span class="empty-icon" aria-hidden="true">⌕</span>
+            <h3 id="empty-title">没有找到文件</h3>
+            <p id="empty-description">试试其他关键词或清除筛选条件。</p>
+          </div>
+          <p class="list-footer"><span class="status-dot"></span> 文件索引由 GitHub Actions 自动同步</p>
+        </section>
+      </main>
+      <footer class="footer">文件下载中心 <span aria-hidden="true">·</span> 由 GitHub Pages 提供</footer>
+    </div>
+
+    <noscript>此网站需要启用 JavaScript 才能验证访问并浏览文件。</noscript>
+  </body>
+</html>

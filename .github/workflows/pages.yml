@@ -1,0 +1,71 @@
+name: Build and deploy file library
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [download-source-updated]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v4
+
+      - name: Resolve download source
+        id: source
+        shell: bash
+        env:
+          DOWNLOAD_REPOSITORY: ${{ vars.DOWNLOAD_REPOSITORY }}
+          DOWNLOAD_REF: ${{ vars.DOWNLOAD_REF }}
+          DISPATCH_REF: ${{ github.event.client_payload.ref }}
+        run: |
+          echo "repository=${DOWNLOAD_REPOSITORY:-$GITHUB_REPOSITORY}" >> "$GITHUB_OUTPUT"
+          echo "ref=${DOWNLOAD_REF:-${DISPATCH_REF:-$GITHUB_REF_NAME}}" >> "$GITHUB_OUTPUT"
+
+      - name: Check out download source
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.source.outputs.repository }}
+          ref: ${{ steps.source.outputs.ref }}
+          path: download-source
+          fetch-depth: 0
+          token: ${{ secrets.DOWNLOAD_SOURCE_TOKEN || github.token }}
+
+      - name: Generate file index
+        env:
+          DOWNLOAD_PATH: ${{ vars.DOWNLOAD_PATH }}
+          DOWNLOAD_IGNORE: ${{ vars.DOWNLOAD_IGNORE }}
+        run: |
+          args=(--source download-source --repository "${{ steps.source.outputs.repository }}" --ref "${{ steps.source.outputs.ref }}")
+          if [ -n "$DOWNLOAD_PATH" ]; then args+=(--subdir "$DOWNLOAD_PATH"); fi
+          if [ -n "$DOWNLOAD_IGNORE" ]; then args+=(--ignore "$DOWNLOAD_IGNORE"); fi
+          node scripts/generate-index.mjs "${args[@]}"
+
+      - name: Set up Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
