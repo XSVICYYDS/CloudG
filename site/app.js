@@ -292,7 +292,7 @@ function renderFiles() {
     download.className = "button download-button";
     download.type = "button";
     download.textContent = "↓ 下载";
-    download.addEventListener("click", () => downloadFile(file, download));
+    download.addEventListener("click", () => downloadFile(file));
 
     row.append(main, size, updated, fileTypeLabel, download);
     fragment.append(row);
@@ -305,20 +305,9 @@ function resetFilePage() {
   renderFiles();
 }
 
-function updateDownloadStatus(message, progress, total) {
+function updateDownloadStatus(message) {
   downloadStatus.hidden = false;
   document.querySelector("#download-message").textContent = message;
-  const progressBar = document.querySelector("#download-progress");
-  const label = document.querySelector("#download-progress-label");
-  if (Number.isFinite(total) && total > 0) {
-    progressBar.removeAttribute("value");
-    progressBar.max = total;
-    progressBar.value = progress;
-    label.textContent = `${formatSize(progress)} / ${formatSize(total)}`;
-  } else {
-    progressBar.removeAttribute("value");
-    label.textContent = formatSize(progress);
-  }
 }
 
 function downloadFileUrl(file) {
@@ -334,100 +323,16 @@ function downloadFileUrl(file) {
   }
 }
 
-async function streamToFile(file, handle, button) {
-  const existing = await handle.getFile();
-  let offset = 0;
-  if (existing.name === file.name && existing.size > 0 && existing.size < file.size
-      && window.confirm(`发现同名的部分文件（${formatSize(existing.size)}）。是否从断点继续下载？`)) {
-    offset = existing.size;
-  }
-
-  const writable = await handle.createWritable({ keepExistingData: offset > 0 });
-  if (offset > 0) await writable.seek(offset);
-  let retries = 0;
-  try {
-    while (offset < file.size) {
-      let response;
-      try {
-        const headers = offset > 0 ? { Range: `bytes=${offset}-` } : {};
-        response = await fetch(downloadFileUrl(file), { headers, cache: "no-store" });
-      } catch (error) {
-        if (retries >= 3) throw error;
-        retries += 1;
-        updateDownloadStatus(`网络中断，正在重试（${retries}/3）…`, offset, file.size);
-        await new Promise((resolve) => setTimeout(resolve, retries * 700));
-        continue;
-      }
-      if (!response.ok) throw new Error(`下载请求失败 (${response.status})`);
-      if (offset > 0 && response.status === 200) {
-        await writable.truncate(0);
-        offset = 0;
-      } else if (offset > 0 && response.status !== 206) {
-        throw new Error("下载服务器不支持断点续传");
-      }
-      const range = response.headers.get("content-range");
-      if (response.status === 206 && range && !range.startsWith(`bytes ${offset}-`)) {
-        throw new Error("服务器返回的续传范围不匹配");
-      }
-      if (!response.body) throw new Error("浏览器无法读取下载数据流");
-      const reader = response.body.getReader();
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          await writable.write(value);
-          offset += value.byteLength;
-          retries = 0;
-          updateDownloadStatus(`正在下载 ${file.name}`, offset, file.size);
-        }
-      } catch (error) {
-        if (retries >= 3) throw error;
-        retries += 1;
-        await writable.seek(offset);
-        updateDownloadStatus(`网络中断，正在续传（${retries}/3）…`, offset, file.size);
-        await new Promise((resolve) => setTimeout(resolve, retries * 700));
-      } finally {
-        reader.releaseLock();
-      }
-    }
-    if (offset !== file.size) throw new Error("文件大小与索引不一致，下载已取消");
-    await writable.close();
-    updateDownloadStatus(`下载完成：${file.name}`, file.size, file.size);
-  } catch (error) {
-    await writable.abort();
-    throw error;
-  } finally {
-    button.disabled = false;
-    button.removeAttribute("aria-busy");
-  }
-}
-
-async function downloadFile(file, button) {
-  button.disabled = true;
-  button.setAttribute("aria-busy", "true");
+function downloadFile(file) {
   try {
     const url = downloadFileUrl(file);
-    if ("showSaveFilePicker" in window && file.size > 0) {
-      const handle = await window.showSaveFilePicker({ suggestedName: file.name });
-      updateDownloadStatus(`准备下载 ${file.name}`, 0, file.size);
-      await streamToFile(file, handle, button);
-      return;
-    }
-
     const link = document.createElement("a");
     link.href = url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
     link.download = file.name;
     link.click();
-    updateDownloadStatus("已交由浏览器下载管理器处理；可在浏览器中查看进度或续传。", 0, 0);
+    updateDownloadStatus(`已开始下载 ${file.name}。下载进度、暂停和续传由浏览器下载管理器处理。`);
   } catch (error) {
-    if (error.name !== "AbortError") {
-      updateDownloadStatus(`下载失败：${error.message || "请稍后重试"}`, 0, 0);
-    }
-  } finally {
-    button.disabled = false;
-    button.removeAttribute("aria-busy");
+    updateDownloadStatus(`下载启动失败：${error.message || "请稍后重试"}`);
   }
 }
 

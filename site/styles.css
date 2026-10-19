@@ -93,9 +93,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid #e8eaf0; border-radiu
 .empty-icon { display: inline-grid; width: 44px; height: 44px; place-items: center; border-radius: 50%; background: #f4f3ff; color: var(--purple); font-size: 24px; }
 .empty-state h3 { margin: 13px 0 5px; color: #344055; font-size: 14px; }
 .empty-state p { margin: 0; font-size: 12px; }
-.download-status { margin: 0 0 14px; padding: 12px 14px; border: 1px solid #e6e3ff; border-radius: 9px; background: #faf9ff; }
-.download-status-copy { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: #535d73; font-size: 11px; }
-.download-status progress { display: block; width: 100%; height: 5px; accent-color: var(--purple); }
+.download-status { margin: 0 0 14px; padding: 12px 14px; border: 1px solid #e6e3ff; border-radius: 9px; background: #faf9ff; color: #535d73; font-size: 11px; line-height: 1.5; }
 .list-footer { display: flex; align-items: center; gap: 7px; margin: 14px 0 0; color: #9aa2b1; font-size: 10px; }
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #52b788; }
 .footer { padding: 28px 16px 24px; color: #a3aaba; font-size: 11px; text-align: center; }
@@ -144,7 +142,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid #e8eaf0; border-radiu
   .file-name { font-size: 12px; }
   .file-path { font-size: 9px; }
   .download-button { min-height: 30px; padding: 0 8px; }
-  .download-status-copy { font-size: 10px; }
+  .download-status { font-size: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
