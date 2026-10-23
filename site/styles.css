@@ -21,18 +21,44 @@ button { cursor: pointer; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .muted { color: var(--muted); }
 
-.auth-view { display: grid; min-height: 100vh; place-items: center; padding: 24px; background: radial-gradient(ellipse at 50% 30%, #eeedff 0, #f5f7fb 48%, #f5f7fb 100%); }
-.auth-card { width: min(100%, 420px); padding: 42px; border: 1px solid rgba(232, 235, 242, .9); border-radius: 20px; background: rgba(255, 255, 255, .94); box-shadow: 0 22px 70px rgba(37, 43, 76, .09); }
+.auth-view { display: grid; min-height: 100vh; min-height: 100svh; place-items: center; padding: clamp(20px, 5vw, 72px); background: radial-gradient(ellipse at 30% 50%, #eeedff 0, #f5f7fb 55%, #f8f9fc 100%); }
+.auth-layout { display: grid; width: min(1240px, 100%); min-height: min(700px, calc(100svh - 80px)); grid-template-columns: minmax(0, 1.1fr) minmax(360px, .9fr); align-items: center; gap: clamp(28px, 7vw, 100px); }
+.auth-visual { position: relative; min-height: 640px; overflow: hidden; padding: 42px 30px; }
+.clock-panel { position: relative; z-index: 2; text-align: center; }
+.clock-panel p { margin: 0; }
+.clock-date { color: #717b91; font-size: clamp(20px, 2.3vw, 30px); font-weight: 500; letter-spacing: .08em; }
+.clock-time { margin-top: 6px !important; color: #20263a; font-size: clamp(48px, 7vw, 88px); font-weight: 700; letter-spacing: -.055em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.clock-day-period { margin-top: 12px !important; color: var(--purple); font-size: 16px; font-weight: 600; letter-spacing: .12em; }
+.number-board { position: absolute; z-index: 1; inset: 220px 0 45px; overflow: hidden; }
+.interference-lines { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; }
+.number-cloud { position: absolute; z-index: 2; inset: 0; }
+.challenge-digit { position: absolute; display: grid; width: 54px; height: 46px; place-items: center; border: 1px solid rgba(255,255,255,.76); border-radius: 12px; background: rgba(255,255,255,.78); box-shadow: 0 6px 22px rgba(42,48,76,.12); font-size: 27px; font-weight: 800; font-variant-numeric: tabular-nums; text-shadow: 0 1px 0 rgba(255,255,255,.8); backdrop-filter: blur(5px); }
+.auth-illustration { position: absolute; z-index: 0; right: 4%; bottom: 0; width: min(88%, 580px); height: auto; opacity: .86; transform: translateY(8%); }
+.visual-caption { position: absolute; z-index: 2; bottom: 10px; left: 50%; margin: 0; color: #9098a9; font-size: 10px; font-weight: 700; letter-spacing: .24em; transform: translateX(-50%); }
+.auth-card { width: 100%; max-width: 470px; justify-self: end; padding: clamp(28px, 4vw, 44px); border: 1px solid rgba(232, 235, 242, .9); border-radius: 20px; background: rgba(255, 255, 255, .96); box-shadow: 0 22px 70px rgba(37, 43, 76, .09); }
 .brand-mark { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border-radius: 13px; background: linear-gradient(135deg, #796df1, #5245ce); color: #fff; font-size: 20px; font-weight: 700; box-shadow: 0 6px 14px rgba(101, 88, 223, .25); }
 .auth-card > .brand-mark { width: 48px; height: 48px; margin-bottom: 26px; border-radius: 15px; font-size: 22px; }
 .eyebrow { margin: 0 0 10px; color: var(--purple); font-size: 11px; font-weight: 700; letter-spacing: .15em; }
 .auth-card h1 { margin: 0 0 8px; font-size: 27px; letter-spacing: -.04em; }
-.auth-card > .muted { margin: 0 0 28px; font-size: 14px; }
+.auth-card > .muted { margin: 0 0 22px; font-size: 14px; }
 .auth-card form label { display: block; margin-bottom: 9px; font-size: 13px; font-weight: 600; }
 .input-wrap { display: flex; align-items: center; border: 1px solid #dfe3ed; border-radius: 10px; background: #fff; transition: border-color .18s, box-shadow .18s; }
 .input-wrap:focus-within { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(101, 88, 223, .12); }
 .input-wrap input { width: 100%; min-width: 0; height: 46px; padding: 0 12px; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 14px; }
 .input-wrap input::placeholder { color: #abb2c0; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.text-input { width: 100%; min-width: 0; height: 43px; padding: 0 11px; border: 1px solid #dfe3ed; border-radius: 9px; outline: 0; background: #fff; color: var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; transition: border-color .18s, box-shadow .18s; }
+.text-input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(101, 88, 223, .1); }
+.time-fill { display: block; margin: 6px 0 12px auto; padding: 3px 0; border: 0; background: transparent; color: var(--purple); font-size: 11px; }
+.challenge-row { display: grid; grid-template-columns: 1fr 112px; align-items: center; gap: 12px; margin-top: 7px; }
+.challenge-row label { margin: 0 !important; color: #4e5b72; font-size: 12px !important; line-height: 1.45; }
+.math-input { text-align: center; }
+.captcha-row { display: flex; align-items: end; gap: 10px; margin-top: 15px; }
+.captcha-input-group { min-width: 0; flex: 1; }
+.captcha-input { letter-spacing: .16em; text-transform: uppercase; }
+.captcha-countdown { margin-left: 4px; color: #8a91a2; font-size: 10px; font-weight: 400; }
+.captcha-button { min-height: 43px; white-space: nowrap; }
+.honeypot { position: absolute !important; left: -10000px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; }
 .icon-button { padding: 6px 12px; border: 0; background: transparent; color: var(--muted); font-size: 12px; }
 .form-message { min-height: 19px; margin: 8px 0 8px; color: #c23d52; font-size: 12px; }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid transparent; border-radius: 9px; font-size: 13px; font-weight: 600; transition: background .16s, border-color .16s, transform .16s; }
@@ -93,15 +119,19 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid #e8eaf0; border-radiu
 .empty-icon { display: inline-grid; width: 44px; height: 44px; place-items: center; border-radius: 50%; background: #f4f3ff; color: var(--purple); font-size: 24px; }
 .empty-state h3 { margin: 13px 0 5px; color: #344055; font-size: 14px; }
 .empty-state p { margin: 0; font-size: 12px; }
-.download-status { margin: 0 0 14px; padding: 12px 14px; border: 1px solid #e6e3ff; border-radius: 9px; background: #faf9ff; }
-.download-status-copy { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: #535d73; font-size: 11px; }
-.download-status progress { display: block; width: 100%; height: 5px; accent-color: var(--purple); }
+.download-status { margin: 0 0 14px; padding: 12px 14px; border: 1px solid #e6e3ff; border-radius: 9px; background: #faf9ff; color: #535d73; font-size: 11px; line-height: 1.5; }
 .list-footer { display: flex; align-items: center; gap: 7px; margin: 14px 0 0; color: #9aa2b1; font-size: 10px; }
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #52b788; }
 .footer { padding: 28px 16px 24px; color: #a3aaba; font-size: 11px; text-align: center; }
 .footer span { padding: 0 5px; }
 
 @media (max-width: 760px) {
+  .auth-view { padding: 24px; }
+  .auth-layout { width: min(560px, 100%); min-height: 0; grid-template-columns: 1fr; gap: 8px; }
+  .auth-visual { min-height: 440px; padding: 20px 16px; }
+  .number-board { inset: 175px 0 34px; }
+  .auth-illustration { width: min(78%, 440px); right: 10%; }
+  .auth-card { max-width: none; justify-self: stretch; }
   .topbar { height: 62px; padding: 0 20px; }
   .main-content { width: min(100% - 32px, 560px); }
   .hero { min-height: 206px; padding: 32px 0 27px; }
@@ -116,6 +146,17 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid #e8eaf0; border-radiu
 }
 
 @media (max-width: 520px) {
+  .auth-view { padding: 12px; }
+  .auth-layout { gap: 2px; }
+  .auth-visual { min-height: 350px; padding: 17px 10px; }
+  .clock-date { font-size: 20px; }
+  .clock-time { font-size: clamp(48px, 14vw, 68px); }
+  .clock-day-period { margin-top: 7px !important; font-size: 14px; }
+  .number-board { inset: 155px 0 26px; }
+  .challenge-digit { width: 42px; height: 36px; border-radius: 9px; font-size: 21px; }
+  .auth-illustration { width: 82%; right: 8%; }
+  .visual-caption { bottom: 3px; font-size: 8px; }
+  .auth-card { padding: 26px 22px; }
   .auth-card { padding: 32px 25px; }
   .topbar { padding: 0 16px; }
   .brand { gap: 8px; font-size: 12px; }
@@ -144,7 +185,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid #e8eaf0; border-radiu
   .file-name { font-size: 12px; }
   .file-path { font-size: 9px; }
   .download-button { min-height: 30px; padding: 0 8px; }
-  .download-status-copy { font-size: 10px; }
+  .download-status { font-size: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,6 +2,8 @@ const AUTH_STATE_KEY = "cloudg-download-auth-v1";
 const RATE_LIMIT_KEY = "cloudg-download-rate-v1";
 const MAX_ATTEMPTS = 5;
 const BASE_LOCK_MS = 60_000;
+const CAPTCHA_TTL_MS = 30_000;
+const CAPTCHA_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 const authView = document.querySelector("#auth-view");
 const appView = document.querySelector("#app-view");
@@ -17,6 +19,10 @@ const downloadStatus = document.querySelector("#download-status");
 let config;
 let files = [];
 let visibleLimit = 50;
+let mathAnswer = 0;
+let captchaValue = "";
+let captchaExpiresAt = 0;
+let captchaIssuedAt = 0;
 
 function readJSON(storage, key, fallback) {
   try {
@@ -85,6 +91,122 @@ function setAuthMessage(message) {
   authError.textContent = message;
 }
 
+function randomInt(max) {
+  const limit = Math.floor(256 / max) * max;
+  const value = new Uint8Array(1);
+  do {
+    window.crypto.getRandomValues(value);
+  } while (value[0] >= limit);
+  return value[0] % max;
+}
+
+function updateClock() {
+  const now = new Date();
+  const pad = (value) => String(value).padStart(2, "0");
+  document.querySelector("#clock-date").textContent =
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  document.querySelector("#clock-time").textContent =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const period = now.getHours() < 12 ? "上午" : "下午";
+  document.querySelector("#clock-day-period").textContent = `星期${"日一二三四五六"[now.getDay()]}　${period}`;
+}
+
+function fillCurrentTime() {
+  const now = new Date();
+  const pad = (value) => String(value).padStart(2, "0");
+  document.querySelector("#current-date").value =
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  document.querySelector("#current-time").value =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}
+
+function createMathChallenge() {
+  const cloud = document.querySelector("#number-cloud");
+  const svg = document.querySelector(".interference-lines");
+  cloud.replaceChildren();
+  svg.replaceChildren();
+  const colors = ["#dc4f71", "#7c55cf", "#2088a8", "#dd8a21", "#258d63", "#df6040", "#4169c5", "#b1499b"];
+  const digits = Array.from({ length: 8 }, () => 10 + randomInt(90));
+  const positions = [
+    [5, 5], [37, 3], [72, 8], [15, 38],
+    [52, 32], [83, 42], [30, 64], [66, 68]
+  ];
+  const order = positions.map((_, index) => index);
+  for (let i = order.length - 1; i > 0; i -= 1) {
+    const j = randomInt(i + 1);
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+
+  for (let i = 0; i < digits.length; i += 1) {
+    const digit = document.createElement("span");
+    digit.className = "challenge-digit";
+    digit.textContent = String(digits[i]);
+    digit.style.left = `${positions[order[i]][0]}%`;
+    digit.style.top = `${positions[order[i]][1]}%`;
+    digit.style.color = colors[randomInt(colors.length)];
+    digit.style.transform = `rotate(${randomInt(31) - 15}deg)`;
+    cloud.append(digit);
+
+    if (i < 6) {
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", String(randomInt(1000)));
+      line.setAttribute("y1", String(randomInt(1000)));
+      line.setAttribute("x2", String(randomInt(1000)));
+      line.setAttribute("y2", String(randomInt(1000)));
+      line.setAttribute("stroke", colors[randomInt(colors.length)]);
+      line.setAttribute("stroke-width", String(1 + randomInt(3)));
+      line.setAttribute("stroke-opacity", "0.34");
+      svg.append(line);
+    }
+  }
+
+  const first = digits[randomInt(digits.length)];
+  const second = digits[randomInt(digits.length)];
+  const subtract = randomInt(2) === 1;
+  const larger = Math.max(first, second);
+  const smaller = Math.min(first, second);
+  mathAnswer = subtract ? larger - smaller : first + second;
+  document.querySelector("#math-prompt").textContent = subtract
+    ? `计算图中数字：${larger} − ${smaller} = ?`
+    : `计算图中数字：${first} + ${second} = ?`;
+  document.querySelector("#math-answer").value = "";
+}
+
+function updateCaptchaCountdown() {
+  const countdown = document.querySelector("#captcha-countdown");
+  const remaining = captchaExpiresAt - Date.now();
+  if (!captchaValue || remaining <= 0) {
+    captchaValue = "";
+    countdown.textContent = "未获取";
+    return;
+  }
+  countdown.textContent = `· ${Math.ceil(remaining / 1000)} 秒有效`;
+}
+
+function issueCaptcha() {
+  const bytes = new Uint8Array(6);
+  window.crypto.getRandomValues(bytes);
+  captchaValue = Array.from(bytes, (byte) => CAPTCHA_ALPHABET[byte % CAPTCHA_ALPHABET.length]).join("");
+  captchaIssuedAt = Date.now();
+  captchaExpiresAt = captchaIssuedAt + CAPTCHA_TTL_MS;
+  updateCaptchaCountdown();
+  window.alert(`本次验证码：${captchaValue}\n请在 30 秒内复制并输入。验证码仅在本页有效。`);
+}
+
+function isCurrentTime(dateValue, timeValue) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue) || !/^\d{2}:\d{2}:\d{2}$/.test(timeValue)) return false;
+  const entered = new Date(`${dateValue}T${timeValue}`);
+  if (Number.isNaN(entered.getTime())) return false;
+  return Math.abs(Date.now() - entered.getTime()) <= 90_000;
+}
+
+document.querySelector("#fill-time").addEventListener("click", fillCurrentTime);
+document.querySelector("#get-captcha").addEventListener("click", issueCaptcha);
+window.setInterval(updateClock, 1000);
+window.setInterval(updateCaptchaCountdown, 250);
+updateClock();
+createMathChallenge();
+
 authForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const wait = remainingLockMs();
@@ -92,9 +214,9 @@ authForm.addEventListener("submit", (event) => {
     setAuthMessage(`尝试次数过多，请${formatWait(wait)}。`);
     return;
   }
+  if (document.querySelector("#website").value.trim()) return;
   if (authInput.value !== config.accessKey) {
     const state = recordFailure();
-    authInput.value = "";
     const newWait = remainingLockMs();
     setAuthMessage(newWait > 0
       ? `尝试次数过多，已暂时锁定。请${formatWait(newWait)}。`
@@ -102,8 +224,30 @@ authForm.addEventListener("submit", (event) => {
     authInput.focus();
     return;
   }
+  if (!isCurrentTime(document.querySelector("#current-date").value, document.querySelector("#current-time").value)) {
+    recordFailure();
+    setAuthMessage("日期或时间格式不正确，或与左侧当前时间相差超过 90 秒。");
+    return;
+  }
+  if (!/^\d+$/.test(document.querySelector("#math-answer").value)
+      || Number(document.querySelector("#math-answer").value) !== mathAnswer) {
+    recordFailure();
+    setAuthMessage("数字计算不正确，请根据左侧数字重新计算。");
+    createMathChallenge();
+    return;
+  }
+  if (!captchaValue || Date.now() >= captchaExpiresAt
+      || Date.now() - captchaIssuedAt < 1200
+      || document.querySelector("#captcha-input").value.trim().toUpperCase() !== captchaValue) {
+    recordFailure();
+    setAuthMessage("验证码错误或已过期，请重新获取后输入。");
+    captchaValue = "";
+    updateCaptchaCountdown();
+    return;
+  }
 
   localStorage.removeItem(RATE_LIMIT_KEY);
+  captchaValue = "";
   sessionStorage.setItem(AUTH_STATE_KEY, JSON.stringify({
     expiresAt: Date.now() + config.sessionTtlHours * 60 * 60 * 1000
   }));
@@ -292,7 +436,7 @@ function renderFiles() {
     download.className = "button download-button";
     download.type = "button";
     download.textContent = "↓ 下载";
-    download.addEventListener("click", () => downloadFile(file, download));
+    download.addEventListener("click", () => downloadFile(file));
 
     row.append(main, size, updated, fileTypeLabel, download);
     fragment.append(row);
@@ -305,26 +449,16 @@ function resetFilePage() {
   renderFiles();
 }
 
-function updateDownloadStatus(message, progress, total) {
+function updateDownloadStatus(message) {
   downloadStatus.hidden = false;
   document.querySelector("#download-message").textContent = message;
-  const progressBar = document.querySelector("#download-progress");
-  const label = document.querySelector("#download-progress-label");
-  if (Number.isFinite(total) && total > 0) {
-    progressBar.removeAttribute("value");
-    progressBar.max = total;
-    progressBar.value = progress;
-    label.textContent = `${formatSize(progress)} / ${formatSize(total)}`;
-  } else {
-    progressBar.removeAttribute("value");
-    label.textContent = formatSize(progress);
-  }
 }
 
-function rawFileUrl(file) {
+function downloadFileUrl(file) {
   try {
-    const url = new URL(file.downloadUrl);
-    if (url.protocol !== "https:" || !["raw.githubusercontent.com", "github.com"].includes(url.hostname)) {
+    const url = new URL(file.downloadUrl, document.baseURI);
+    const downloadsRoot = new URL("./downloads/", document.baseURI);
+    if (url.origin !== location.origin || !url.pathname.startsWith(downloadsRoot.pathname)) {
       throw new Error("不支持的下载地址");
     }
     return url.href;
@@ -333,100 +467,16 @@ function rawFileUrl(file) {
   }
 }
 
-async function streamToFile(file, handle, button) {
-  const existing = await handle.getFile();
-  let offset = 0;
-  if (existing.name === file.name && existing.size > 0 && existing.size < file.size
-      && window.confirm(`发现同名的部分文件（${formatSize(existing.size)}）。是否从断点继续下载？`)) {
-    offset = existing.size;
-  }
-
-  const writable = await handle.createWritable({ keepExistingData: offset > 0 });
-  if (offset > 0) await writable.seek(offset);
-  let retries = 0;
+function downloadFile(file) {
   try {
-    while (offset < file.size) {
-      let response;
-      try {
-        const headers = offset > 0 ? { Range: `bytes=${offset}-` } : {};
-        response = await fetch(rawFileUrl(file), { headers, cache: "no-store" });
-      } catch (error) {
-        if (retries >= 3) throw error;
-        retries += 1;
-        updateDownloadStatus(`网络中断，正在重试（${retries}/3）…`, offset, file.size);
-        await new Promise((resolve) => setTimeout(resolve, retries * 700));
-        continue;
-      }
-      if (!response.ok) throw new Error(`下载请求失败 (${response.status})`);
-      if (offset > 0 && response.status === 200) {
-        await writable.truncate(0);
-        offset = 0;
-      } else if (offset > 0 && response.status !== 206) {
-        throw new Error("下载服务器不支持断点续传");
-      }
-      const range = response.headers.get("content-range");
-      if (response.status === 206 && range && !range.startsWith(`bytes ${offset}-`)) {
-        throw new Error("服务器返回的续传范围不匹配");
-      }
-      if (!response.body) throw new Error("浏览器无法读取下载数据流");
-      const reader = response.body.getReader();
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          await writable.write(value);
-          offset += value.byteLength;
-          retries = 0;
-          updateDownloadStatus(`正在下载 ${file.name}`, offset, file.size);
-        }
-      } catch (error) {
-        if (retries >= 3) throw error;
-        retries += 1;
-        await writable.seek(offset);
-        updateDownloadStatus(`网络中断，正在续传（${retries}/3）…`, offset, file.size);
-        await new Promise((resolve) => setTimeout(resolve, retries * 700));
-      } finally {
-        reader.releaseLock();
-      }
-    }
-    if (offset !== file.size) throw new Error("文件大小与索引不一致，下载已取消");
-    await writable.close();
-    updateDownloadStatus(`下载完成：${file.name}`, file.size, file.size);
-  } catch (error) {
-    await writable.abort();
-    throw error;
-  } finally {
-    button.disabled = false;
-    button.removeAttribute("aria-busy");
-  }
-}
-
-async function downloadFile(file, button) {
-  button.disabled = true;
-  button.setAttribute("aria-busy", "true");
-  try {
-    const url = rawFileUrl(file);
-    if ("showSaveFilePicker" in window && file.size > 0) {
-      const handle = await window.showSaveFilePicker({ suggestedName: file.name });
-      updateDownloadStatus(`准备下载 ${file.name}`, 0, file.size);
-      await streamToFile(file, handle, button);
-      return;
-    }
-
+    const url = downloadFileUrl(file);
     const link = document.createElement("a");
     link.href = url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
     link.download = file.name;
     link.click();
-    updateDownloadStatus("已交由浏览器下载管理器处理；可在浏览器中查看进度或续传。", 0, 0);
+    updateDownloadStatus(`已开始下载 ${file.name}。下载进度、暂停和续传由浏览器下载管理器处理。`);
   } catch (error) {
-    if (error.name !== "AbortError") {
-      updateDownloadStatus(`下载失败：${error.message || "请稍后重试"}`, 0, 0);
-    }
-  } finally {
-    button.disabled = false;
-    button.removeAttribute("aria-busy");
+    updateDownloadStatus(`下载启动失败：${error.message || "请稍后重试"}`);
   }
 }
 
