@@ -2,6 +2,8 @@ const AUTH_STATE_KEY = "cloudg-download-auth-v1";
 const RATE_LIMIT_KEY = "cloudg-download-rate-v1";
 const MAX_ATTEMPTS = 5;
 const BASE_LOCK_MS = 60_000;
+const CAPTCHA_TTL_MS = 30_000;
+const CAPTCHA_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 const authView = document.querySelector("#auth-view");
 const appView = document.querySelector("#app-view");
@@ -17,6 +19,10 @@ const downloadStatus = document.querySelector("#download-status");
 let config;
 let files = [];
 let visibleLimit = 50;
+let mathAnswer = 0;
+let captchaValue = "";
+let captchaExpiresAt = 0;
+let captchaIssuedAt = 0;
 
 function readJSON(storage, key, fallback) {
   try {
@@ -85,6 +91,122 @@ function setAuthMessage(message) {
   authError.textContent = message;
 }
 
+function randomInt(max) {
+  const limit = Math.floor(256 / max) * max;
+  const value = new Uint8Array(1);
+  do {
+    window.crypto.getRandomValues(value);
+  } while (value[0] >= limit);
+  return value[0] % max;
+}
+
+function updateClock() {
+  const now = new Date();
+  const pad = (value) => String(value).padStart(2, "0");
+  document.querySelector("#clock-date").textContent =
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  document.querySelector("#clock-time").textContent =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const period = now.getHours() < 12 ? "上午" : "下午";
+  document.querySelector("#clock-day-period").textContent = `星期${"日一二三四五六"[now.getDay()]}　${period}`;
+}
+
+function fillCurrentTime() {
+  const now = new Date();
+  const pad = (value) => String(value).padStart(2, "0");
+  document.querySelector("#current-date").value =
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  document.querySelector("#current-time").value =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}
+
+function createMathChallenge() {
+  const cloud = document.querySelector("#number-cloud");
+  const svg = document.querySelector(".interference-lines");
+  cloud.replaceChildren();
+  svg.replaceChildren();
+  const colors = ["#dc4f71", "#7c55cf", "#2088a8", "#dd8a21", "#258d63", "#df6040", "#4169c5", "#b1499b"];
+  const digits = Array.from({ length: 8 }, () => 10 + randomInt(90));
+  const positions = [
+    [5, 5], [37, 3], [72, 8], [15, 38],
+    [52, 32], [83, 42], [30, 64], [66, 68]
+  ];
+  const order = positions.map((_, index) => index);
+  for (let i = order.length - 1; i > 0; i -= 1) {
+    const j = randomInt(i + 1);
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+
+  for (let i = 0; i < digits.length; i += 1) {
+    const digit = document.createElement("span");
+    digit.className = "challenge-digit";
+    digit.textContent = String(digits[i]);
+    digit.style.left = `${positions[order[i]][0]}%`;
+    digit.style.top = `${positions[order[i]][1]}%`;
+    digit.style.color = colors[randomInt(colors.length)];
+    digit.style.transform = `rotate(${randomInt(31) - 15}deg)`;
+    cloud.append(digit);
+
+    if (i < 6) {
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", String(randomInt(1000)));
+      line.setAttribute("y1", String(randomInt(1000)));
+      line.setAttribute("x2", String(randomInt(1000)));
+      line.setAttribute("y2", String(randomInt(1000)));
+      line.setAttribute("stroke", colors[randomInt(colors.length)]);
+      line.setAttribute("stroke-width", String(1 + randomInt(3)));
+      line.setAttribute("stroke-opacity", "0.34");
+      svg.append(line);
+    }
+  }
+
+  const first = digits[randomInt(digits.length)];
+  const second = digits[randomInt(digits.length)];
+  const subtract = randomInt(2) === 1;
+  const larger = Math.max(first, second);
+  const smaller = Math.min(first, second);
+  mathAnswer = subtract ? larger - smaller : first + second;
+  document.querySelector("#math-prompt").textContent = subtract
+    ? `计算图中数字：${larger} − ${smaller} = ?`
+    : `计算图中数字：${first} + ${second} = ?`;
+  document.querySelector("#math-answer").value = "";
+}
+
+function updateCaptchaCountdown() {
+  const countdown = document.querySelector("#captcha-countdown");
+  const remaining = captchaExpiresAt - Date.now();
+  if (!captchaValue || remaining <= 0) {
+    captchaValue = "";
+    countdown.textContent = "未获取";
+    return;
+  }
+  countdown.textContent = `· ${Math.ceil(remaining / 1000)} 秒有效`;
+}
+
+function issueCaptcha() {
+  const bytes = new Uint8Array(6);
+  window.crypto.getRandomValues(bytes);
+  captchaValue = Array.from(bytes, (byte) => CAPTCHA_ALPHABET[byte % CAPTCHA_ALPHABET.length]).join("");
+  captchaIssuedAt = Date.now();
+  captchaExpiresAt = captchaIssuedAt + CAPTCHA_TTL_MS;
+  updateCaptchaCountdown();
+  window.alert(`本次验证码：${captchaValue}\n请在 30 秒内复制并输入。验证码仅在本页有效。`);
+}
+
+function isCurrentTime(dateValue, timeValue) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue) || !/^\d{2}:\d{2}:\d{2}$/.test(timeValue)) return false;
+  const entered = new Date(`${dateValue}T${timeValue}`);
+  if (Number.isNaN(entered.getTime())) return false;
+  return Math.abs(Date.now() - entered.getTime()) <= 90_000;
+}
+
+document.querySelector("#fill-time").addEventListener("click", fillCurrentTime);
+document.querySelector("#get-captcha").addEventListener("click", issueCaptcha);
+window.setInterval(updateClock, 1000);
+window.setInterval(updateCaptchaCountdown, 250);
+updateClock();
+createMathChallenge();
+
 authForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const wait = remainingLockMs();
@@ -92,9 +214,9 @@ authForm.addEventListener("submit", (event) => {
     setAuthMessage(`尝试次数过多，请${formatWait(wait)}。`);
     return;
   }
+  if (document.querySelector("#website").value.trim()) return;
   if (authInput.value !== config.accessKey) {
     const state = recordFailure();
-    authInput.value = "";
     const newWait = remainingLockMs();
     setAuthMessage(newWait > 0
       ? `尝试次数过多，已暂时锁定。请${formatWait(newWait)}。`
@@ -102,8 +224,30 @@ authForm.addEventListener("submit", (event) => {
     authInput.focus();
     return;
   }
+  if (!isCurrentTime(document.querySelector("#current-date").value, document.querySelector("#current-time").value)) {
+    recordFailure();
+    setAuthMessage("日期或时间格式不正确，或与左侧当前时间相差超过 90 秒。");
+    return;
+  }
+  if (!/^\d+$/.test(document.querySelector("#math-answer").value)
+      || Number(document.querySelector("#math-answer").value) !== mathAnswer) {
+    recordFailure();
+    setAuthMessage("数字计算不正确，请根据左侧数字重新计算。");
+    createMathChallenge();
+    return;
+  }
+  if (!captchaValue || Date.now() >= captchaExpiresAt
+      || Date.now() - captchaIssuedAt < 1200
+      || document.querySelector("#captcha-input").value.trim().toUpperCase() !== captchaValue) {
+    recordFailure();
+    setAuthMessage("验证码错误或已过期，请重新获取后输入。");
+    captchaValue = "";
+    updateCaptchaCountdown();
+    return;
+  }
 
   localStorage.removeItem(RATE_LIMIT_KEY);
+  captchaValue = "";
   sessionStorage.setItem(AUTH_STATE_KEY, JSON.stringify({
     expiresAt: Date.now() + config.sessionTtlHours * 60 * 60 * 1000
   }));
