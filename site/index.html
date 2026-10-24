@@ -8,7 +8,7 @@
     <meta name="description" content="安全、便捷地浏览和下载文件。">
     <meta name="referrer" content="no-referrer">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' blob:; media-src 'self' blob:; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
     <title>文件下载中心</title>
     <link rel="icon" type="image/webp" href="./assets/favicon.webp">
     <link rel="stylesheet" href="./styles.css">
@@ -102,7 +102,7 @@
           <div class="hero-copy">
             <p class="eyebrow">FILE LIBRARY</p>
             <h1>需要的文件，<span>一目了然。</span></h1>
-            <p class="hero-description">浏览文件、快速筛选，并从仓库直链下载最新版本。</p>
+            <p class="hero-description">浏览文件、即时预览，并快速下载所需内容。</p>
           </div>
           <div class="hero-stat">
             <span id="file-count" class="stat-value">—</span>
@@ -163,6 +163,25 @@
       </main>
       <footer class="footer">文件下载中心 <span aria-hidden="true">·</span> 由 GitHub Pages 提供</footer>
     </div>
+
+    <dialog id="preview-dialog" class="preview-dialog" aria-labelledby="preview-title">
+      <div class="preview-shell">
+        <header class="preview-header">
+          <div class="preview-heading">
+            <h2 id="preview-title">文件预览</h2>
+            <p id="preview-path"></p>
+          </div>
+          <button id="preview-close" class="preview-close" type="button" aria-label="关闭预览">×</button>
+        </header>
+        <div id="preview-content" class="preview-content" aria-live="polite">
+          <p class="preview-placeholder">正在加载预览…</p>
+        </div>
+        <footer class="preview-footer">
+          <span id="preview-meta"></span>
+          <a id="preview-download" class="button button-secondary" href="#" download>↓ 下载原文件</a>
+        </footer>
+      </div>
+    </dialog>
 
     <noscript>此网站需要启用 JavaScript 才能验证访问并浏览文件。</noscript>
   </body>

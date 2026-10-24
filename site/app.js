@@ -16,6 +16,12 @@ const typeFilter = document.querySelector("#type-filter");
 const sortOrder = document.querySelector("#sort-order");
 const emptyState = document.querySelector("#empty-state");
 const downloadStatus = document.querySelector("#download-status");
+const previewDialog = document.querySelector("#preview-dialog");
+const previewContent = document.querySelector("#preview-content");
+const previewTitle = document.querySelector("#preview-title");
+const previewPath = document.querySelector("#preview-path");
+const previewMeta = document.querySelector("#preview-meta");
+const previewDownload = document.querySelector("#preview-download");
 let config;
 let files = [];
 let visibleLimit = 50;
@@ -23,6 +29,15 @@ let mathAnswer = 0;
 let captchaValue = "";
 let captchaExpiresAt = 0;
 let captchaIssuedAt = 0;
+let previewObjectUrl = "";
+let previewRequest = null;
+
+const PREVIEW_LIMITS = {
+  text: 1 * 1024 * 1024,
+  image: 20 * 1024 * 1024,
+  pdf: 25 * 1024 * 1024,
+  media: 50 * 1024 * 1024
+};
 
 function readJSON(storage, key, fallback) {
   try {
@@ -281,6 +296,11 @@ document.querySelector("#lock-button").addEventListener("click", () => {
 });
 
 document.querySelector("#refresh-button").addEventListener("click", loadFiles);
+document.querySelector("#preview-close").addEventListener("click", () => previewDialog.close());
+previewDialog.addEventListener("close", clearPreview);
+previewDialog.addEventListener("click", (event) => {
+  if (event.target === previewDialog) previewDialog.close();
+});
 searchInput.addEventListener("input", resetFilePage);
 typeFilter.addEventListener("change", resetFilePage);
 sortOrder.addEventListener("change", resetFilePage);
@@ -326,6 +346,143 @@ function fileType(file) {
   if (["zip", "7z", "rar", "tar", "gz", "bz2"].includes(ext)) return { label: "压缩包", badge: "ZIP", style: "archive" };
   if (["js", "ts", "py", "java", "go", "rs", "html", "css", "json", "xml", "yml", "yaml", "md"].includes(ext)) return { label: "代码", badge: "CODE", style: "code" };
   return { label: ext ? ext.toUpperCase() : "文件", badge: ext ? ext.slice(0, 4).toUpperCase() : "FILE", style: "" };
+}
+
+function previewKind(file) {
+  const ext = (file.extension || "").toLowerCase();
+  if (["png", "jpg", "jpeg", "gif", "webp", "bmp", "ico"].includes(ext)) return "image";
+  if (ext === "pdf") return "pdf";
+  if (["txt", "md", "csv", "json", "xml", "yaml", "yml", "js", "ts", "jsx", "tsx", "py", "java",
+    "go", "rs", "c", "h", "cpp", "hpp", "cs", "sh", "bat", "ps1", "css", "html", "log", "ini",
+    "toml", "sql", "diff"].includes(ext)) return "text";
+  if (["mp3", "wav", "ogg", "m4a", "aac", "flac"].includes(ext)) return "audio";
+  if (["mp4", "webm", "ogv"].includes(ext)) return "video";
+  return "";
+}
+
+function previewLimit(kind) {
+  return PREVIEW_LIMITS[kind === "audio" || kind === "video" ? "media" : kind] || 0;
+}
+
+function clearPreview() {
+  if (previewRequest) previewRequest.abort();
+  previewRequest = null;
+  if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+  previewObjectUrl = "";
+  previewContent.replaceChildren();
+}
+
+function showPreviewError(message, file) {
+  const text = document.createElement("p");
+  text.className = "preview-placeholder";
+  text.textContent = message;
+  previewContent.replaceChildren(text);
+  previewMeta.textContent = file ? `${formatSize(file.size)} · 预览失败` : "预览失败";
+}
+
+async function readPreviewBlob(response, maxSize) {
+  const contentLength = Number(response.headers.get("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > maxSize) {
+    throw new Error(`文件超过 ${formatSize(maxSize)} 的预览上限`);
+  }
+  if (!response.body) {
+    const blob = await response.blob();
+    if (blob.size > maxSize) throw new Error(`文件超过 ${formatSize(maxSize)} 的预览上限`);
+    return blob;
+  }
+
+  const reader = response.body.getReader();
+  const chunks = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > maxSize) {
+        await reader.cancel();
+        throw new Error(`文件超过 ${formatSize(maxSize)} 的预览上限`);
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return new Blob(chunks, { type: response.headers.get("content-type") || "application/octet-stream" });
+}
+
+async function openPreview(file) {
+  const kind = previewKind(file);
+  const maxSize = previewLimit(kind);
+  if (!kind || !maxSize || file.size > maxSize) return;
+
+  clearPreview();
+  previewTitle.textContent = file.name;
+  previewPath.textContent = file.path;
+  previewMeta.textContent = `${formatSize(file.size)} · ${kind === "text" ? "文本预览" : "浏览器媒体预览"}`;
+  previewDownload.href = downloadFileUrl(file);
+  previewDownload.download = file.name;
+  const loading = document.createElement("p");
+  loading.className = "preview-placeholder";
+  loading.textContent = "正在加载预览…";
+  previewContent.append(loading);
+  if (!previewDialog.open) previewDialog.showModal();
+
+  const request = new AbortController();
+  previewRequest = request;
+  const timeout = window.setTimeout(() => request.abort(), 15_000);
+  try {
+    const response = await fetch(downloadFileUrl(file), { signal: request.signal });
+    if (!response.ok) throw new Error(`文件请求失败 (${response.status})`);
+    const blob = await readPreviewBlob(response, maxSize);
+    if (request.signal.aborted || previewRequest !== request || !previewDialog.open) return;
+    if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+    previewObjectUrl = URL.createObjectURL(blob);
+
+    let element;
+    if (kind === "text") {
+      let text = await blob.text();
+      if (file.extension.toLowerCase() === "json") {
+        try {
+          text = JSON.stringify(JSON.parse(text), null, 2);
+        } catch {
+          // Show malformed JSON as plain text rather than hiding the source.
+        }
+      }
+      element = document.createElement("pre");
+      element.className = "preview-text";
+      element.textContent = text;
+    } else if (kind === "image") {
+      element = document.createElement("img");
+      element.className = "preview-image";
+      element.alt = file.name;
+      element.src = previewObjectUrl;
+      element.addEventListener("error", () => showPreviewError("图片无法显示，可能格式不受浏览器支持。", file), { once: true });
+    } else if (kind === "pdf") {
+      element = document.createElement("iframe");
+      element.className = "preview-frame";
+      element.title = `${file.name} PDF 预览`;
+      element.src = previewObjectUrl;
+    } else {
+      element = document.createElement(kind);
+      element.className = "preview-media";
+      element.controls = true;
+      element.preload = "metadata";
+      element.src = previewObjectUrl;
+      element.addEventListener("error", () => showPreviewError("媒体无法播放，可能编码格式不受浏览器支持。", file), { once: true });
+    }
+    previewContent.replaceChildren(element);
+  } catch (error) {
+    if (previewRequest !== request) return;
+    if (error.name === "AbortError") {
+      showPreviewError("预览请求超时或已取消，请下载文件后使用本地应用打开。", file);
+    } else {
+      showPreviewError(error.message || "无法加载此文件预览。", file);
+    }
+  } finally {
+    window.clearTimeout(timeout);
+    if (previewRequest === request) previewRequest = null;
+  }
 }
 
 async function loadFiles() {
@@ -449,7 +606,21 @@ function renderFiles() {
     download.textContent = "↓ 下载";
     download.addEventListener("click", () => downloadFile(file));
 
-    row.append(main, size, updated, fileTypeLabel, download);
+    const actions = document.createElement("div");
+    actions.className = "file-actions";
+    const kind = previewKind(file);
+    const preview = document.createElement("button");
+    preview.className = "button preview-button";
+    preview.type = "button";
+    preview.textContent = "预览";
+    preview.disabled = !kind || file.size > previewLimit(kind);
+    preview.title = !kind ? "此文件类型暂不支持预览"
+      : preview.disabled ? `文件超过 ${formatSize(previewLimit(kind))} 的预览上限` : `预览 ${file.name}`;
+    preview.setAttribute("aria-label", `预览 ${file.name}`);
+    preview.addEventListener("click", () => openPreview(file));
+    actions.append(preview, download);
+
+    row.append(main, size, updated, fileTypeLabel, actions);
     fragment.append(row);
   }
   fileList.append(fragment);
