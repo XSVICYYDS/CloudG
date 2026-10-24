@@ -98,8 +98,12 @@ function setAuthFormEnabled(enabled) {
 }
 
 function randomInt(max) {
-  const limit = Math.floor(256 / max) * max;
-  const value = new Uint8Array(1);
+  if (!Number.isInteger(max) || max < 1 || max > 0x1_0000_0000) {
+    throw new RangeError("随机数上限无效");
+  }
+  const range = 0x1_0000_0000;
+  const limit = Math.floor(range / max) * max;
+  const value = new Uint32Array(1);
   do {
     window.crypto.getRandomValues(value);
   } while (value[0] >= limit);
