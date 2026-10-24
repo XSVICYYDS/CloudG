@@ -67,6 +67,8 @@ button { cursor: pointer; }
 .button-primary:hover { background: var(--purple-dark); }
 .auth-submit { width: 100%; min-height: 46px; justify-content: space-between; padding: 0 16px; }
 .auth-footnote { margin: 21px 0 0; color: #9aa2b1; font-size: 11px; line-height: 1.6; text-align: center; }
+.config-retry { display: block; margin: 10px auto 0; padding: 5px 8px; border: 0; background: transparent; color: var(--purple); font-size: 12px; font-weight: 600; }
+.config-retry:hover { color: var(--purple-dark); text-decoration: underline; }
 
 .topbar { position: sticky; z-index: 2; top: 0; display: flex; height: 70px; align-items: center; justify-content: space-between; padding: 0 max(28px, calc((100vw - 1120px) / 2)); border-bottom: 1px solid rgba(232, 235, 242, .8); background: rgba(255, 255, 255, .88); backdrop-filter: blur(16px); }
 .brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); font-size: 14px; font-weight: 700; text-decoration: none; }

@@ -91,6 +91,12 @@ function setAuthMessage(message) {
   authError.textContent = message;
 }
 
+function setAuthFormEnabled(enabled) {
+  authForm.querySelectorAll("input, button").forEach((control) => {
+    control.disabled = !enabled;
+  });
+}
+
 function randomInt(max) {
   const limit = Math.floor(256 / max) * max;
   const value = new Uint8Array(1);
@@ -202,6 +208,7 @@ function isCurrentTime(dateValue, timeValue) {
 
 document.querySelector("#fill-time").addEventListener("click", fillCurrentTime);
 document.querySelector("#get-captcha").addEventListener("click", issueCaptcha);
+document.querySelector("#config-retry").addEventListener("click", start);
 window.setInterval(updateClock, 1000);
 window.setInterval(updateCaptchaCountdown, 250);
 updateClock();
@@ -481,21 +488,34 @@ function downloadFile(file) {
 }
 
 async function start() {
+  showLockScreen();
+  setAuthFormEnabled(false);
+  setAuthMessage("正在加载验证配置…");
+  const retryButton = document.querySelector("#config-retry");
+  retryButton.hidden = true;
+  retryButton.disabled = true;
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 10_000);
   try {
-    const response = await fetch("./config.json", { cache: "no-store" });
+    const response = await fetch("./config.json", { cache: "no-store", signal: controller.signal });
     if (!response.ok) throw new Error(`配置加载失败 (${response.status})`);
     config = await response.json();
     if (typeof config.accessKey !== "string" || !Number.isFinite(config.sessionTtlHours)
         || typeof config.filesIndexUrl !== "string") {
       throw new Error("网站配置无效");
     }
+    setAuthFormEnabled(true);
+    setAuthMessage("");
     if (isUnlocked()) openSite();
-    else showLockScreen();
   } catch (error) {
-    authView.hidden = false;
-    document.querySelector("#auth-title").textContent = "网站暂不可用";
-    document.querySelector("#auth-form").hidden = true;
-    document.querySelector(".auth-card > .muted").textContent = error.message || "无法加载网站配置。";
+    setAuthFormEnabled(false);
+    setAuthMessage(error.name === "AbortError"
+      ? "加载验证配置超时，请检查网络连接后重试。"
+      : `无法加载验证配置：${error.message || "请检查网络连接后重试。"}`);
+    retryButton.hidden = false;
+  } finally {
+    retryButton.disabled = false;
+    window.clearTimeout(timeout);
   }
 }
 
