@@ -59,7 +59,7 @@
             <div class="challenge-row">
               <label id="math-prompt" for="math-answer">计算题目中的数字</label>
               <input class="text-input math-input" id="math-answer" name="math-answer" type="text"
-                inputmode="numeric" autocomplete="off" placeholder="计算结果" required>
+                inputmode="text" autocomplete="off" placeholder="输入结果" required>
             </div>
 
             <div class="captcha-row">
@@ -84,6 +84,18 @@
         </section>
       </div>
     </main>
+
+    <dialog id="captcha-dialog" class="captcha-dialog" aria-labelledby="captcha-dialog-title">
+      <div class="captcha-dialog-card">
+        <p class="eyebrow">ONE-TIME VERIFICATION</p>
+        <h2 id="captcha-dialog-title">你的验证码</h2>
+        <p class="captcha-dialog-hint">复制验证码并粘贴到登录表单，30 秒内有效。</p>
+        <output id="captcha-dialog-code" class="captcha-dialog-code" aria-live="polite"></output>
+        <p id="captcha-dialog-countdown" class="captcha-dialog-countdown"></p>
+        <p id="captcha-copy-status" class="captcha-copy-status" role="status" aria-live="polite"></p>
+        <button id="captcha-copy-close" class="button button-primary captcha-copy-close" type="button">复制并关闭</button>
+      </div>
+    </dialog>
 
     <div id="app-view" hidden>
       <header class="topbar">

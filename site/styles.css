@@ -21,20 +21,20 @@ button { cursor: pointer; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .muted { color: var(--muted); }
 
-.auth-view { display: grid; min-height: 100vh; min-height: 100svh; place-items: center; padding: clamp(20px, 5vw, 72px); background: radial-gradient(ellipse at 30% 50%, #eeedff 0, #f5f7fb 55%, #f8f9fc 100%); }
+.auth-view { display: grid; min-height: 100vh; min-height: 100svh; place-items: center; padding: clamp(20px, 5vw, 72px); background: linear-gradient(110deg, rgba(8, 22, 51, .22), rgba(9, 19, 42, .62)), url("./assets/login-background.png") center / cover no-repeat fixed; }
 .auth-layout { display: grid; width: min(1240px, 100%); min-height: min(700px, calc(100svh - 80px)); grid-template-columns: minmax(0, 1.1fr) minmax(360px, .9fr); align-items: center; gap: clamp(28px, 7vw, 100px); }
 .auth-visual { position: relative; min-height: 640px; overflow: hidden; padding: 42px 30px; }
 .clock-panel { position: relative; z-index: 2; text-align: center; }
 .clock-panel p { margin: 0; }
-.clock-date { color: #717b91; font-size: clamp(20px, 2.3vw, 30px); font-weight: 500; letter-spacing: .08em; }
-.clock-time { margin-top: 6px !important; color: #20263a; font-size: clamp(48px, 7vw, 88px); font-weight: 700; letter-spacing: -.055em; line-height: 1.05; font-variant-numeric: tabular-nums; }
-.clock-day-period { margin-top: 12px !important; color: var(--purple); font-size: 16px; font-weight: 600; letter-spacing: .12em; }
+.clock-date { color: #e0e8fa; font-size: clamp(20px, 2.3vw, 30px); font-weight: 500; letter-spacing: .08em; text-shadow: 0 2px 16px rgba(2, 10, 28, .35); }
+.clock-time { margin-top: 6px !important; color: #fff; font-size: clamp(48px, 7vw, 88px); font-weight: 700; letter-spacing: -.055em; line-height: 1.05; font-variant-numeric: tabular-nums; text-shadow: 0 4px 24px rgba(1, 8, 22, .42); }
+.clock-day-period { margin-top: 12px !important; color: #b9d9ff; font-size: 16px; font-weight: 600; letter-spacing: .12em; text-shadow: 0 2px 12px rgba(2, 10, 28, .45); }
 .number-board { position: absolute; z-index: 1; inset: 220px 0 45px; overflow: hidden; }
 .interference-lines { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; }
 .number-cloud { position: absolute; z-index: 2; inset: 0; }
 .challenge-digit { position: absolute; display: grid; width: 54px; height: 46px; place-items: center; border: 1px solid rgba(255,255,255,.76); border-radius: 12px; background: rgba(255,255,255,.78); box-shadow: 0 6px 22px rgba(42,48,76,.12); font-size: 27px; font-weight: 800; font-variant-numeric: tabular-nums; text-shadow: 0 1px 0 rgba(255,255,255,.8); backdrop-filter: blur(5px); }
 .auth-illustration { position: absolute; z-index: 0; right: 4%; bottom: 0; width: min(88%, 580px); height: auto; opacity: .86; transform: translateY(8%); }
-.visual-caption { position: absolute; z-index: 2; bottom: 10px; left: 50%; margin: 0; color: #9098a9; font-size: 10px; font-weight: 700; letter-spacing: .24em; transform: translateX(-50%); }
+.visual-caption { position: absolute; z-index: 2; bottom: 10px; left: 50%; margin: 0; color: #d4e4fc; font-size: 10px; font-weight: 700; letter-spacing: .24em; text-shadow: 0 1px 8px rgba(2, 10, 28, .6); transform: translateX(-50%); }
 .auth-card { width: 100%; max-width: 470px; justify-self: end; padding: clamp(28px, 4vw, 44px); border: 1px solid rgba(232, 235, 242, .9); border-radius: 20px; background: rgba(255, 255, 255, .96); box-shadow: 0 22px 70px rgba(37, 43, 76, .09); }
 .brand-mark { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border-radius: 13px; background: linear-gradient(135deg, #796df1, #5245ce); color: #fff; font-size: 20px; font-weight: 700; box-shadow: 0 6px 14px rgba(101, 88, 223, .25); }
 .auth-card > .brand-mark { width: 48px; height: 48px; margin-bottom: 26px; border-radius: 15px; font-size: 22px; }
@@ -58,9 +58,20 @@ button { cursor: pointer; }
 .captcha-input { letter-spacing: .16em; text-transform: uppercase; }
 .captcha-countdown { margin-left: 4px; color: #8a91a2; font-size: 10px; font-weight: 400; }
 .captcha-button { min-height: 43px; white-space: nowrap; }
+.captcha-dialog { width: min(420px, calc(100vw - 32px)); max-width: none; padding: 0; overflow: visible; border: 1px solid rgba(232, 235, 242, .95); border-radius: 18px; background: #fff; color: var(--ink); box-shadow: 0 24px 80px rgba(10, 20, 42, .32); }
+.captcha-dialog::backdrop { background: rgba(8, 17, 37, .68); backdrop-filter: blur(5px); }
+.captcha-dialog-card { position: relative; padding: 34px 32px 30px; text-align: center; }
+.captcha-dialog-card .eyebrow { margin-bottom: 8px; }
+.captcha-dialog-card h2 { margin: 0; font-size: 22px; }
+.captcha-dialog-hint { margin: 9px 0 20px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.captcha-dialog-code { display: block; padding: 17px 12px; border: 1px dashed #ccc7ff; border-radius: 12px; background: #f8f7ff; color: var(--purple); font: 700 32px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .24em; }
+.captcha-dialog-countdown { min-height: 18px; margin: 10px 0 0; color: #7d8799; font-size: 11px; }
+.captcha-copy-status { min-height: 18px; margin: 3px 0 9px; color: #c23d52; font-size: 11px; }
+.captcha-copy-close { width: 100%; min-height: 45px; }
 .honeypot { position: absolute !important; left: -10000px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; }
 .icon-button { padding: 6px 12px; border: 0; background: transparent; color: var(--muted); font-size: 12px; }
 .form-message { min-height: 19px; margin: 8px 0 8px; color: #c23d52; font-size: 12px; }
+.form-message.is-success { color: #258d63; }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid transparent; border-radius: 9px; font-size: 13px; font-weight: 600; transition: background .16s, border-color .16s, transform .16s; }
 .button:active { transform: translateY(1px); }
 .button-primary { background: var(--purple); color: #fff; }
@@ -179,8 +190,9 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid #e8eaf0; border-radiu
   .challenge-digit { width: 42px; height: 36px; border-radius: 9px; font-size: 21px; }
   .auth-illustration { width: 82%; right: 8%; }
   .visual-caption { bottom: 3px; font-size: 8px; }
-  .auth-card { padding: 26px 22px; }
   .auth-card { padding: 32px 25px; }
+  .captcha-dialog-card { padding: 30px 22px 22px; }
+  .captcha-dialog-code { font-size: 27px; }
   .topbar { padding: 0 16px; }
   .brand { gap: 8px; font-size: 12px; }
   .brand .brand-mark { width: 31px; height: 31px; }

@@ -22,6 +22,11 @@ const previewTitle = document.querySelector("#preview-title");
 const previewPath = document.querySelector("#preview-path");
 const previewMeta = document.querySelector("#preview-meta");
 const previewDownload = document.querySelector("#preview-download");
+const captchaDialog = document.querySelector("#captcha-dialog");
+const captchaDialogCode = document.querySelector("#captcha-dialog-code");
+const captchaDialogCountdown = document.querySelector("#captcha-dialog-countdown");
+const captchaCopyButton = document.querySelector("#captcha-copy-close");
+const captchaCopyStatus = document.querySelector("#captcha-copy-status");
 let config;
 let files = [];
 let visibleLimit = 50;
@@ -102,8 +107,9 @@ function recordFailure() {
   return state;
 }
 
-function setAuthMessage(message) {
+function setAuthMessage(message, success = false) {
   authError.textContent = message;
+  authError.classList.toggle("is-success", success);
 }
 
 function setAuthFormEnabled(enabled) {
@@ -150,8 +156,24 @@ function createMathChallenge() {
   const svg = document.querySelector(".interference-lines");
   cloud.replaceChildren();
   svg.replaceChildren();
-  const colors = ["#dc4f71", "#7c55cf", "#2088a8", "#dd8a21", "#258d63", "#df6040", "#4169c5", "#b1499b"];
+  const colors = [
+    { name: "red", value: "#dc4f4f" },
+    { name: "purple", value: "#7c55cf" },
+    { name: "blue", value: "#2088a8" },
+    { name: "yellow", value: "#cc8700" },
+    { name: "green", value: "#258d63" },
+    { name: "coral", value: "#df6040" },
+    { name: "indigo", value: "#4169c5" },
+    { name: "pink", value: "#b1499b" }
+  ];
   const digits = Array.from({ length: 8 }, () => 10 + randomInt(90));
+  const otherColors = colors.filter((color) => color.name !== "yellow" && color.name !== "red");
+  const digitColors = digits.map(() => otherColors[randomInt(otherColors.length)]);
+  const yellowIndex = randomInt(digits.length);
+  let redIndex = randomInt(digits.length - 1);
+  if (redIndex >= yellowIndex) redIndex += 1;
+  digitColors[yellowIndex] = colors.find((color) => color.name === "yellow");
+  digitColors[redIndex] = colors.find((color) => color.name === "red");
   const positions = [
     [5, 5], [37, 3], [72, 8], [15, 38],
     [52, 32], [83, 42], [30, 64], [66, 68]
@@ -168,7 +190,7 @@ function createMathChallenge() {
     digit.textContent = String(digits[i]);
     digit.style.left = `${positions[order[i]][0]}%`;
     digit.style.top = `${positions[order[i]][1]}%`;
-    digit.style.color = colors[randomInt(colors.length)];
+    digit.style.color = digitColors[i].value;
     digit.style.transform = `rotate(${randomInt(31) - 15}deg)`;
     cloud.append(digit);
 
@@ -178,22 +200,15 @@ function createMathChallenge() {
       line.setAttribute("y1", String(randomInt(1000)));
       line.setAttribute("x2", String(randomInt(1000)));
       line.setAttribute("y2", String(randomInt(1000)));
-      line.setAttribute("stroke", colors[randomInt(colors.length)]);
+      line.setAttribute("stroke", colors[randomInt(colors.length)].value);
       line.setAttribute("stroke-width", String(1 + randomInt(3)));
       line.setAttribute("stroke-opacity", "0.34");
       svg.append(line);
     }
   }
 
-  const first = digits[randomInt(digits.length)];
-  const second = digits[randomInt(digits.length)];
-  const subtract = randomInt(2) === 1;
-  const larger = Math.max(first, second);
-  const smaller = Math.min(first, second);
-  mathAnswer = subtract ? larger - smaller : first + second;
-  document.querySelector("#math-prompt").textContent = subtract
-    ? `计算图中数字：${larger} − ${smaller} = ?`
-    : `计算图中数字：${first} + ${second} = ?`;
+  mathAnswer = digits[yellowIndex] - digits[redIndex];
+  document.querySelector("#math-prompt").textContent = "请输入黄色数字减红色数字的值";
   document.querySelector("#math-answer").value = "";
 }
 
@@ -203,9 +218,16 @@ function updateCaptchaCountdown() {
   if (!captchaValue || remaining <= 0) {
     captchaValue = "";
     countdown.textContent = "未获取";
+    captchaDialogCountdown.textContent = "验证码已过期，请关闭并重新获取。";
+    captchaCopyButton.disabled = false;
+    captchaCopyButton.textContent = "关闭并重新获取";
     return;
   }
-  countdown.textContent = `· ${Math.ceil(remaining / 1000)} 秒有效`;
+  const seconds = Math.ceil(remaining / 1000);
+  countdown.textContent = `· ${seconds} 秒有效`;
+  captchaDialogCountdown.textContent = `验证码将在 ${seconds} 秒后过期`;
+  captchaCopyButton.disabled = false;
+  captchaCopyButton.textContent = "复制并关闭";
 }
 
 function issueCaptcha() {
@@ -214,8 +236,50 @@ function issueCaptcha() {
   captchaValue = Array.from(bytes, (byte) => CAPTCHA_ALPHABET[byte % CAPTCHA_ALPHABET.length]).join("");
   captchaIssuedAt = Date.now();
   captchaExpiresAt = captchaIssuedAt + CAPTCHA_TTL_MS;
+  captchaDialogCode.textContent = captchaValue;
+  captchaCopyStatus.textContent = "";
   updateCaptchaCountdown();
-  window.alert(`本次验证码：${captchaValue}\n请在 30 秒内复制并输入。验证码仅在本页有效。`);
+  if (!captchaDialog.open) captchaDialog.showModal();
+}
+
+async function copyCaptchaAndClose() {
+  if (!captchaValue || Date.now() >= captchaExpiresAt) {
+    updateCaptchaCountdown();
+    captchaDialog.close();
+    return;
+  }
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(captchaValue);
+      } catch {
+        if (!copyWithLegacyApi(captchaValue)) throw new Error("浏览器未允许访问剪贴板");
+      }
+    } else if (!copyWithLegacyApi(captchaValue)) {
+      throw new Error("浏览器未允许访问剪贴板");
+    }
+    captchaDialog.close();
+    document.querySelector("#captcha-input").focus();
+    setAuthMessage("验证码已复制，请粘贴到验证码输入框。", true);
+  } catch {
+    captchaCopyStatus.textContent = "复制失败，请手动选择并复制上方验证码。";
+  }
+}
+
+function copyWithLegacyApi(value) {
+  const copyField = document.createElement("textarea");
+  copyField.value = value;
+  copyField.setAttribute("readonly", "");
+  copyField.style.position = "fixed";
+  copyField.style.opacity = "0";
+  document.body.append(copyField);
+  try {
+    copyField.select();
+    return document.execCommand("copy");
+  } finally {
+    copyField.remove();
+  }
 }
 
 function isCurrentTime(dateValue, timeValue) {
@@ -227,6 +291,10 @@ function isCurrentTime(dateValue, timeValue) {
 
 document.querySelector("#fill-time").addEventListener("click", fillCurrentTime);
 document.querySelector("#get-captcha").addEventListener("click", issueCaptcha);
+captchaCopyButton.addEventListener("click", copyCaptchaAndClose);
+captchaDialog.addEventListener("click", (event) => {
+  if (event.target === captchaDialog) copyCaptchaAndClose();
+});
 document.querySelector("#config-retry").addEventListener("click", start);
 window.setInterval(updateClock, 1000);
 window.setInterval(updateCaptchaCountdown, 250);
@@ -255,7 +323,7 @@ authForm.addEventListener("submit", (event) => {
     setAuthMessage("日期或时间格式不正确，或与左侧当前时间相差超过 90 秒。");
     return;
   }
-  if (!/^\d+$/.test(document.querySelector("#math-answer").value)
+  if (!/^-?\d+$/.test(document.querySelector("#math-answer").value)
       || Number(document.querySelector("#math-answer").value) !== mathAnswer) {
     recordFailure();
     setAuthMessage("数字计算不正确，请根据左侧数字重新计算。");
