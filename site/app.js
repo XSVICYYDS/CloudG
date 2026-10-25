@@ -153,27 +153,27 @@ function fillCurrentTime() {
 
 function createMathChallenge() {
   const cloud = document.querySelector("#number-cloud");
-  const svg = document.querySelector(".interference-lines");
   cloud.replaceChildren();
-  svg.replaceChildren();
   const colors = [
-    { name: "red", value: "#dc4f4f" },
-    { name: "purple", value: "#7c55cf" },
-    { name: "blue", value: "#2088a8" },
-    { name: "yellow", value: "#cc8700" },
-    { name: "green", value: "#258d63" },
-    { name: "coral", value: "#df6040" },
-    { name: "indigo", value: "#4169c5" },
-    { name: "pink", value: "#b1499b" }
+    { name: "红色", value: "#dc4f4f", interference: "rgba(220, 79, 79, .48)" },
+    { name: "紫色", value: "#7c55cf", interference: "rgba(124, 85, 207, .48)" },
+    { name: "蓝色", value: "#2088a8", interference: "rgba(32, 136, 168, .48)" },
+    { name: "黄色", value: "#cc8700", interference: "rgba(204, 135, 0, .52)" },
+    { name: "绿色", value: "#258d63", interference: "rgba(37, 141, 99, .48)" },
+    { name: "橙色", value: "#df6040", interference: "rgba(223, 96, 64, .48)" },
+    { name: "靛蓝色", value: "#4169c5", interference: "rgba(65, 105, 197, .48)" },
+    { name: "粉色", value: "#b1499b", interference: "rgba(177, 73, 155, .48)" }
   ];
   const digits = Array.from({ length: 8 }, () => 10 + randomInt(90));
-  const otherColors = colors.filter((color) => color.name !== "yellow" && color.name !== "red");
-  const digitColors = digits.map(() => otherColors[randomInt(otherColors.length)]);
-  const yellowIndex = randomInt(digits.length);
-  let redIndex = randomInt(digits.length - 1);
-  if (redIndex >= yellowIndex) redIndex += 1;
-  digitColors[yellowIndex] = colors.find((color) => color.name === "yellow");
-  digitColors[redIndex] = colors.find((color) => color.name === "red");
+  const digitColors = [...colors];
+  for (let i = digitColors.length - 1; i > 0; i -= 1) {
+    const j = randomInt(i + 1);
+    [digitColors[i], digitColors[j]] = [digitColors[j], digitColors[i]];
+  }
+  const firstIndex = randomInt(digits.length);
+  let secondIndex = randomInt(digits.length - 1);
+  if (secondIndex >= firstIndex) secondIndex += 1;
+  const subtract = randomInt(2) === 1;
   const positions = [
     [5, 5], [37, 3], [72, 8], [15, 38],
     [52, 32], [83, 42], [30, 64], [66, 68]
@@ -191,24 +191,19 @@ function createMathChallenge() {
     digit.style.left = `${positions[order[i]][0]}%`;
     digit.style.top = `${positions[order[i]][1]}%`;
     digit.style.color = digitColors[i].value;
+    digit.style.setProperty("--interference-color", digitColors[i].interference);
     digit.style.transform = `rotate(${randomInt(31) - 15}deg)`;
     cloud.append(digit);
-
-    if (i < 6) {
-      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      line.setAttribute("x1", String(randomInt(1000)));
-      line.setAttribute("y1", String(randomInt(1000)));
-      line.setAttribute("x2", String(randomInt(1000)));
-      line.setAttribute("y2", String(randomInt(1000)));
-      line.setAttribute("stroke", colors[randomInt(colors.length)].value);
-      line.setAttribute("stroke-width", String(1 + randomInt(3)));
-      line.setAttribute("stroke-opacity", "0.34");
-      svg.append(line);
-    }
   }
 
-  mathAnswer = digits[yellowIndex] - digits[redIndex];
-  document.querySelector("#math-prompt").textContent = "请输入黄色数字减红色数字的值";
+  const first = digitColors[firstIndex];
+  const second = digitColors[secondIndex];
+  mathAnswer = subtract
+    ? digits[firstIndex] - digits[secondIndex]
+    : digits[firstIndex] + digits[secondIndex];
+  document.querySelector("#math-prompt").textContent = subtract
+    ? `请输入${first.name}数字减${second.name}数字的值`
+    : `请输入${first.name}数字加${second.name}数字的值`;
   document.querySelector("#math-answer").value = "";
 }
 

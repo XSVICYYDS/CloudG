@@ -21,20 +21,20 @@ button { cursor: pointer; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .muted { color: var(--muted); }
 
-.auth-view { display: grid; min-height: 100vh; min-height: 100svh; place-items: center; padding: clamp(20px, 5vw, 72px); background: linear-gradient(110deg, rgba(8, 22, 51, .22), rgba(9, 19, 42, .62)), url("./assets/login-background.png") center / cover no-repeat fixed; }
+.auth-view { display: grid; min-height: 100vh; min-height: 100svh; place-items: center; padding: clamp(20px, 5vw, 72px); background: radial-gradient(ellipse at 30% 50%, #eeedff 0, #f5f7fb 55%, #f8f9fc 100%); }
 .auth-layout { display: grid; width: min(1240px, 100%); min-height: min(700px, calc(100svh - 80px)); grid-template-columns: minmax(0, 1.1fr) minmax(360px, .9fr); align-items: center; gap: clamp(28px, 7vw, 100px); }
 .auth-visual { position: relative; min-height: 640px; overflow: hidden; padding: 42px 30px; }
 .clock-panel { position: relative; z-index: 2; text-align: center; }
 .clock-panel p { margin: 0; }
-.clock-date { color: #e0e8fa; font-size: clamp(20px, 2.3vw, 30px); font-weight: 500; letter-spacing: .08em; text-shadow: 0 2px 16px rgba(2, 10, 28, .35); }
-.clock-time { margin-top: 6px !important; color: #fff; font-size: clamp(48px, 7vw, 88px); font-weight: 700; letter-spacing: -.055em; line-height: 1.05; font-variant-numeric: tabular-nums; text-shadow: 0 4px 24px rgba(1, 8, 22, .42); }
-.clock-day-period { margin-top: 12px !important; color: #b9d9ff; font-size: 16px; font-weight: 600; letter-spacing: .12em; text-shadow: 0 2px 12px rgba(2, 10, 28, .45); }
+.clock-date { color: #717b91; font-size: clamp(20px, 2.3vw, 30px); font-weight: 500; letter-spacing: .08em; }
+.clock-time { margin-top: 6px !important; color: #20263a; font-size: clamp(48px, 7vw, 88px); font-weight: 700; letter-spacing: -.055em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.clock-day-period { margin-top: 12px !important; color: var(--purple); font-size: 16px; font-weight: 600; letter-spacing: .12em; }
 .number-board { position: absolute; z-index: 1; inset: 220px 0 45px; overflow: hidden; }
-.interference-lines { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; }
 .number-cloud { position: absolute; z-index: 2; inset: 0; }
-.challenge-digit { position: absolute; display: grid; width: 54px; height: 46px; place-items: center; border: 1px solid rgba(255,255,255,.76); border-radius: 12px; background: rgba(255,255,255,.78); box-shadow: 0 6px 22px rgba(42,48,76,.12); font-size: 27px; font-weight: 800; font-variant-numeric: tabular-nums; text-shadow: 0 1px 0 rgba(255,255,255,.8); backdrop-filter: blur(5px); }
+.challenge-digit { position: absolute; display: grid; width: 54px; height: 46px; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.76); border-radius: 12px; background: rgba(255,255,255,.78); box-shadow: 0 6px 22px rgba(42,48,76,.12); font-size: 27px; font-weight: 800; font-variant-numeric: tabular-nums; text-shadow: 0 1px 0 rgba(255,255,255,.8); backdrop-filter: blur(5px); }
+.challenge-digit::after { position: absolute; z-index: 1; inset: -10px; background: repeating-linear-gradient(135deg, transparent 0 7px, var(--interference-color) 8px 9px, transparent 10px 15px); content: ""; pointer-events: none; }
 .auth-illustration { position: absolute; z-index: 0; right: 4%; bottom: 0; width: min(88%, 580px); height: auto; opacity: .86; transform: translateY(8%); }
-.visual-caption { position: absolute; z-index: 2; bottom: 10px; left: 50%; margin: 0; color: #d4e4fc; font-size: 10px; font-weight: 700; letter-spacing: .24em; text-shadow: 0 1px 8px rgba(2, 10, 28, .6); transform: translateX(-50%); }
+.visual-caption { position: absolute; z-index: 2; bottom: 10px; left: 50%; margin: 0; color: #9098a9; font-size: 10px; font-weight: 700; letter-spacing: .24em; transform: translateX(-50%); }
 .auth-card { width: 100%; max-width: 470px; justify-self: end; padding: clamp(28px, 4vw, 44px); border: 1px solid rgba(232, 235, 242, .9); border-radius: 20px; background: rgba(255, 255, 255, .96); box-shadow: 0 22px 70px rgba(37, 43, 76, .09); }
 .brand-mark { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border-radius: 13px; background: linear-gradient(135deg, #796df1, #5245ce); color: #fff; font-size: 20px; font-weight: 700; box-shadow: 0 6px 14px rgba(101, 88, 223, .25); }
 .auth-card > .brand-mark { width: 48px; height: 48px; margin-bottom: 26px; border-radius: 15px; font-size: 22px; }
