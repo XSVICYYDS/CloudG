@@ -154,15 +154,16 @@ function fillCurrentTime() {
 function createMathChallenge() {
   const cloud = document.querySelector("#number-cloud");
   cloud.replaceChildren();
+  const darkTextShadow = "-1px -1px 0 #172033, 1px -1px 0 #172033, -1px 1px 0 #172033, 1px 1px 0 #172033";
   const colors = [
-    { name: "红色", value: "#dc4f4f", interference: "rgba(220, 79, 79, .48)" },
-    { name: "紫色", value: "#7c55cf", interference: "rgba(124, 85, 207, .48)" },
-    { name: "蓝色", value: "#2088a8", interference: "rgba(32, 136, 168, .48)" },
-    { name: "黄色", value: "#cc8700", interference: "rgba(204, 135, 0, .52)" },
-    { name: "绿色", value: "#258d63", interference: "rgba(37, 141, 99, .48)" },
-    { name: "橙色", value: "#df6040", interference: "rgba(223, 96, 64, .48)" },
-    { name: "靛蓝色", value: "#4169c5", interference: "rgba(65, 105, 197, .48)" },
-    { name: "粉色", value: "#b1499b", interference: "rgba(177, 73, 155, .48)" }
+    { name: "红色", value: "#ff0000", interference: "rgba(255, 0, 0, .48)" },
+    { name: "橙色", value: "#ffa500", interference: "rgba(255, 165, 0, .48)", textShadow: darkTextShadow },
+    { name: "黄色", value: "#ffff00", interference: "rgba(255, 255, 0, .48)", textShadow: darkTextShadow },
+    { name: "绿色", value: "#00b800", interference: "rgba(0, 184, 0, .48)", textShadow: darkTextShadow },
+    { name: "蓝色", value: "#0000ff", interference: "rgba(0, 0, 255, .48)" },
+    { name: "紫色", value: "#8a00ff", interference: "rgba(138, 0, 255, .48)" },
+    { name: "黑色", value: "#000000", interference: "rgba(0, 0, 0, .48)" },
+    { name: "白色", value: "#ffffff", interference: "rgba(23, 32, 51, .38)", textShadow: darkTextShadow }
   ];
   const digits = Array.from({ length: 8 }, () => 10 + randomInt(90));
   const digitColors = [...colors];
@@ -191,6 +192,7 @@ function createMathChallenge() {
     digit.style.left = `${positions[order[i]][0]}%`;
     digit.style.top = `${positions[order[i]][1]}%`;
     digit.style.color = digitColors[i].value;
+    if (digitColors[i].textShadow) digit.style.textShadow = digitColors[i].textShadow;
     digit.style.setProperty("--interference-color", digitColors[i].interference);
     digit.style.transform = `rotate(${randomInt(31) - 15}deg)`;
     cloud.append(digit);
