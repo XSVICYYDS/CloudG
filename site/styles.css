@@ -87,6 +87,17 @@ button { cursor: pointer; }
 .repo-label { overflow: hidden; max-width: 270px; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .button-quiet { min-height: 34px; padding: 0 12px; border-color: var(--line); background: #fff; color: #5e687a; }
 .button-quiet:hover, .button-secondary:hover { border-color: #d5d0ff; background: #faf9ff; color: var(--purple); }
+.upload-dialog { width: min(480px, calc(100vw - 32px)); max-width: none; padding: 0; border: 1px solid var(--line); border-radius: 16px; background: #fff; color: var(--ink); box-shadow: 0 24px 80px rgba(20, 28, 48, .25); }
+.upload-dialog::backdrop { background: rgba(19, 25, 42, .56); backdrop-filter: blur(3px); }
+.upload-card { display: grid; gap: 10px; padding: 28px; }
+.upload-card .eyebrow { margin-bottom: 0; }
+.upload-card h2 { margin: 0; font-size: 22px; }
+.upload-hint { margin: 0 0 6px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.upload-card > label { margin-top: 5px; font-size: 12px; font-weight: 600; }
+.upload-file-input { height: auto; min-height: 43px; padding: 7px; }
+.upload-progress { width: 100%; height: 8px; accent-color: var(--purple); }
+.upload-status { min-height: 18px; margin: 0; color: #535d73; font-size: 12px; line-height: 1.5; }
+.upload-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 5px; }
 .main-content { width: min(100% - 48px, 1120px); margin: 0 auto; }
 .hero { display: flex; min-height: 242px; align-items: center; justify-content: space-between; padding: 38px 0 30px; }
 .hero .eyebrow { margin-bottom: 12px; }
@@ -195,6 +206,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid #e8eaf0; border-radiu
   .brand .brand-mark { width: 31px; height: 31px; }
   .repo-label { display: none; }
   .topbar-actions { gap: 8px; }
+  .topbar-actions .button { min-height: 32px; padding: 0 9px; font-size: 11px; }
+  .upload-card { padding: 24px 20px; }
   .main-content { width: calc(100% - 28px); }
   .hero { min-height: 186px; align-items: flex-start; padding: 30px 0 24px; }
   .hero h1 { font-size: 29px; }

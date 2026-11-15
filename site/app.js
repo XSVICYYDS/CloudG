@@ -27,6 +27,15 @@ const captchaDialogCode = document.querySelector("#captcha-dialog-code");
 const captchaDialogCountdown = document.querySelector("#captcha-dialog-countdown");
 const captchaCopyButton = document.querySelector("#captcha-copy-close");
 const captchaCopyStatus = document.querySelector("#captcha-copy-status");
+const uploadButton = document.querySelector("#upload-button");
+const uploadDialog = document.querySelector("#upload-dialog");
+const uploadForm = document.querySelector("#upload-form");
+const uploadFilesInput = document.querySelector("#upload-files");
+const uploadTokenInput = document.querySelector("#upload-token");
+const uploadProgress = document.querySelector("#upload-progress");
+const uploadStatus = document.querySelector("#upload-status");
+const uploadSubmitButton = document.querySelector("#upload-submit");
+const uploadCancelButton = document.querySelector("#upload-cancel");
 let config;
 let files = [];
 let visibleLimit = 50;
@@ -37,6 +46,7 @@ let captchaIssuedAt = 0;
 let previewObjectUrl = "";
 let previewRequest = null;
 
+const MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
 const PREVIEW_LIMITS = {
   text: 1 * 1024 * 1024,
   image: 20 * 1024 * 1024,
@@ -306,15 +316,6 @@ authForm.addEventListener("submit", (event) => {
     return;
   }
   if (document.querySelector("#website").value.trim()) return;
-  if (authInput.value !== config.accessKey) {
-    const state = recordFailure();
-    const newWait = remainingLockMs();
-    setAuthMessage(newWait > 0
-      ? `尝试次数过多，已暂时锁定。请${formatWait(newWait)}。`
-      : `密钥不正确。还可尝试 ${MAX_ATTEMPTS - state.attempts} 次。`);
-    authInput.focus();
-    return;
-  }
   if (!isCurrentTime(document.querySelector("#current-date").value, document.querySelector("#current-time").value)) {
     recordFailure();
     setAuthMessage("日期或时间格式不正确，或与左侧当前时间相差超过 90 秒。");
@@ -337,13 +338,41 @@ authForm.addEventListener("submit", (event) => {
     return;
   }
 
-  localStorage.removeItem(RATE_LIMIT_KEY);
-  captchaValue = "";
-  sessionStorage.setItem(AUTH_STATE_KEY, JSON.stringify({
-    expiresAt: Date.now() + config.sessionTtlHours * 60 * 60 * 1000
-  }));
-  setAuthMessage("");
-  openSite();
+  const submitButton = authForm.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  setAuthMessage("正在验证访问密钥…");
+  fetch(`${config.apiUrl}/api/auth`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key: authInput.value })
+  }).then(async (response) => {
+    const result = await response.json();
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 429) {
+        const state = recordFailure();
+        const newWait = remainingLockMs();
+        setAuthMessage(newWait > 0
+          ? `尝试次数过多，已暂时锁定。请${formatWait(newWait)}。`
+          : result.error || `密钥不正确。还可尝试 ${MAX_ATTEMPTS - state.attempts} 次。`);
+        authInput.focus();
+        return;
+      }
+      throw new Error(result.error || `密钥验证失败 (${response.status})`);
+    }
+
+    localStorage.removeItem(RATE_LIMIT_KEY);
+    captchaValue = "";
+    authInput.value = "";
+    sessionStorage.setItem(AUTH_STATE_KEY, JSON.stringify({
+      expiresAt: Date.now() + config.sessionTtlHours * 60 * 60 * 1000
+    }));
+    setAuthMessage("");
+    openSite();
+  }).catch((error) => {
+    setAuthMessage(`无法验证访问密钥：${error.message || "请检查网络连接后重试。"}`);
+  }).finally(() => {
+    submitButton.disabled = false;
+  });
 });
 
 document.querySelector("#toggle-key").addEventListener("click", (event) => {
@@ -361,6 +390,24 @@ document.querySelector("#lock-button").addEventListener("click", () => {
 });
 
 document.querySelector("#refresh-button").addEventListener("click", loadFiles);
+uploadButton.addEventListener("click", () => {
+  uploadStatus.textContent = "";
+  uploadProgress.hidden = true;
+  uploadProgress.value = 0;
+  uploadDialog.showModal();
+  uploadFilesInput.focus();
+});
+uploadCancelButton.addEventListener("click", () => uploadDialog.close());
+uploadDialog.addEventListener("cancel", (event) => {
+  if (uploadSubmitButton.disabled) event.preventDefault();
+});
+uploadDialog.addEventListener("close", () => {
+  uploadForm.reset();
+  uploadProgress.hidden = true;
+  uploadProgress.value = 0;
+  uploadStatus.textContent = "";
+});
+uploadForm.addEventListener("submit", uploadSelectedFiles);
 document.querySelector("#preview-close").addEventListener("click", () => previewDialog.close());
 previewDialog.addEventListener("close", clearPreview);
 previewDialog.addEventListener("click", (event) => {
@@ -554,6 +601,7 @@ async function loadFiles() {
   const subtitle = document.querySelector("#library-subtitle");
   const refreshButton = document.querySelector("#refresh-button");
   subtitle.textContent = "正在加载文件索引…";
+  downloadStatus.hidden = true;
   refreshButton.disabled = true;
   refreshButton.setAttribute("aria-busy", "true");
   try {
@@ -727,6 +775,94 @@ function downloadFile(file) {
   }
 }
 
+function uploadFile(file, token, onProgress) {
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open("POST", `${config.apiUrl}/api/upload`);
+    request.setRequestHeader("Authorization", "Bearer " + token);
+    request.setRequestHeader("Content-Type", file.type || "application/octet-stream");
+    request.setRequestHeader("X-File-Name", encodeURIComponent(file.name));
+    request.upload.addEventListener("progress", (event) => {
+      if (event.lengthComputable) onProgress(event.loaded / event.total);
+    });
+    request.addEventListener("load", () => {
+      let result;
+      try {
+        result = JSON.parse(request.responseText);
+      } catch {
+        reject(new Error(`上传服务返回了无效响应 (${request.status})`));
+        return;
+      }
+      if (request.status < 200 || request.status >= 300) {
+        reject(new Error(result.error || `上传失败 (${request.status})`));
+        return;
+      }
+      resolve(result.file);
+    });
+    request.addEventListener("error", () => reject(new Error("无法连接上传服务，请检查 Worker 地址和网络。")));
+    request.send(file);
+  });
+}
+
+async function uploadSelectedFiles(event) {
+  event.preventDefault();
+  const selectedFiles = Array.from(uploadFilesInput.files || []);
+  const token = uploadTokenInput.value;
+  if (selectedFiles.length === 0 || !token) {
+    uploadStatus.textContent = "请选择文件并输入上传口令。";
+    return;
+  }
+
+  uploadSubmitButton.disabled = true;
+  uploadCancelButton.disabled = true;
+  uploadProgress.hidden = false;
+  uploadProgress.value = 0;
+  let uploadedCount = 0;
+  const uploadedFiles = [];
+  try {
+    for (let index = 0; index < selectedFiles.length; index += 1) {
+      const file = selectedFiles[index];
+      if (file.size > MAX_UPLOAD_SIZE) {
+        throw new Error(`${file.name} 超过单个文件 10 MiB 的限制。`);
+      }
+      uploadStatus.textContent = `正在上传 ${index + 1}/${selectedFiles.length}：${file.name}`;
+      const uploaded = await uploadFile(file, token, (fileProgress) => {
+        uploadProgress.value = ((index + fileProgress) / selectedFiles.length) * 100;
+      });
+      uploadedFiles.push(uploaded);
+      uploadedCount += 1;
+      uploadProgress.value = (uploadedCount / selectedFiles.length) * 100;
+    }
+    const published = await waitForPublishedFiles(uploadedFiles);
+    uploadDialog.close();
+    updateDownloadStatus(published
+      ? `已上传 ${uploadedCount} 个文件，已加入公开列表。`
+      : `已提交 ${uploadedCount} 个文件至 GitHub；Pages 正在更新，稍后点击“刷新索引”查看。`);
+  } catch (error) {
+    if (uploadedCount > 0) {
+      await waitForPublishedFiles(uploadedFiles);
+      uploadDialog.close();
+      updateDownloadStatus(`已上传 ${uploadedCount}/${selectedFiles.length} 个文件；${error.message || "后续上传失败。"} Pages 正在更新。`);
+      return;
+    }
+    uploadStatus.textContent = `上传失败：${error.message || "请稍后重试。"}`;
+  } finally {
+    uploadTokenInput.value = "";
+    uploadSubmitButton.disabled = false;
+    uploadCancelButton.disabled = false;
+  }
+}
+
+async function waitForPublishedFiles(uploadedFiles) {
+  const expectedPaths = uploadedFiles.map((file) => file.path);
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    await loadFiles();
+    if (expectedPaths.every((path) => files.some((file) => file.path === path))) return true;
+    await new Promise((resolve) => window.setTimeout(resolve, 5000));
+  }
+  return false;
+}
+
 async function start() {
   showLockScreen();
   setAuthFormEnabled(false);
@@ -740,10 +876,18 @@ async function start() {
     const response = await fetch("./config.json", { cache: "no-store", signal: controller.signal });
     if (!response.ok) throw new Error(`配置加载失败 (${response.status})`);
     config = await response.json();
-    if (typeof config.accessKey !== "string" || !Number.isFinite(config.sessionTtlHours)
-        || typeof config.filesIndexUrl !== "string") {
+    if (!Number.isFinite(config.sessionTtlHours)
+        || typeof config.filesIndexUrl !== "string"
+        || typeof config.apiUrl !== "string") {
       throw new Error("网站配置无效");
     }
+    config.apiUrl = config.apiUrl.trim().replace(/\/+$/, "");
+    const apiUrl = new URL(config.apiUrl);
+    if (apiUrl.protocol !== "https:" || apiUrl.username || apiUrl.password
+        || apiUrl.search || apiUrl.hash || apiUrl.pathname !== "/") {
+      throw new Error("文件服务地址必须是 HTTPS Worker 根地址");
+    }
+    uploadButton.hidden = false;
     setAuthFormEnabled(true);
     setAuthMessage("");
     if (isUnlocked()) openSite();

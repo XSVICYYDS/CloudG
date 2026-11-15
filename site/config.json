@@ -1,5 +1,5 @@
 {
-  "accessKey": "Xsvicyyds!12345678",
   "sessionTtlHours": 12,
-  "filesIndexUrl": "./data/files.json"
+  "filesIndexUrl": "./data/files.json",
+  "apiUrl": "https://cloudg-file-upload.xsvicyyds.workers.dev"
 }

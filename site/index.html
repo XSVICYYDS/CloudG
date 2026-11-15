@@ -8,7 +8,7 @@
     <meta name="description" content="安全、便捷地浏览和下载文件。">
     <meta name="referrer" content="no-referrer">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' blob:; media-src 'self' blob:; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https:; img-src 'self' blob:; media-src 'self' blob:; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
     <title>文件下载中心</title>
     <link rel="icon" type="image/webp" href="./assets/favicon.webp">
     <link rel="stylesheet" href="./styles.css">
@@ -103,6 +103,7 @@
         </a>
         <div class="topbar-actions">
           <span id="repo-label" class="repo-label"></span>
+          <button id="upload-button" class="button button-quiet" type="button" hidden>↑ 上传</button>
           <button id="lock-button" class="button button-quiet" type="button">锁定</button>
         </div>
       </header>
@@ -191,6 +192,25 @@
           <a id="preview-download" class="button button-secondary" href="#" download>↓ 下载原文件</a>
         </footer>
       </div>
+    </dialog>
+
+    <dialog id="upload-dialog" class="upload-dialog" aria-labelledby="upload-title">
+      <form id="upload-form" class="upload-card">
+        <p class="eyebrow">GITHUB FILE UPLOAD</p>
+        <h2 id="upload-title">上传文件</h2>
+        <p class="upload-hint">上传的文件会存入 GitHub 并出现在公开文件列表中。单个文件最大 10 MiB。</p>
+        <label for="upload-files">选择文件</label>
+        <input id="upload-files" class="text-input upload-file-input" type="file" multiple required>
+        <label for="upload-token">上传口令</label>
+        <input id="upload-token" class="text-input" type="password" autocomplete="off"
+          placeholder="输入上传密钥" required>
+        <progress id="upload-progress" class="upload-progress" max="100" value="0" hidden></progress>
+        <p id="upload-status" class="upload-status" role="status" aria-live="polite"></p>
+        <div class="upload-actions">
+          <button id="upload-cancel" class="button button-secondary" type="button">取消</button>
+          <button id="upload-submit" class="button button-primary" type="submit">开始上传</button>
+        </div>
+      </form>
     </dialog>
 
     <noscript>此网站需要启用 JavaScript 才能验证访问并浏览文件。</noscript>
