@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>九年级期中复习资料 · 化学基础 · 功和能 · 金属</title>
+<style>
+/* ===== CSS3 基础变量与重置 ===== */
+:root {
+    --primary: #4f46e5;
+    --primary-light: #6366f1;
+    --primary-dark: #4338ca;
+    --primary-bg: #eef2ff;
+    --accent: #f59e0b;
+    --accent-bg: #fef3c7;
+    --success: #10b981;
+    --danger: #ef4444;
+    --info: #3b82f6;
+
+    --chem-color: #059669;
+    --phys-color: #7c3aed;
+    --metal-color: #d97706;
+
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --text-lighter: #94a3b8;
+
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
+    --transition: .25s cubic-bezier(.4,0,.2,1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ===== 顶部导航栏 ===== */
+.navbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 64px;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+}
+
+.navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    white-space: nowrap;
+}
+
+.navbar .logo .icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.navbar .nav-tabs {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.navbar .nav-tab {
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: .875rem;
+    font-weight: 500;
+    color: var(--text-light);
+    transition: var(--transition);
+    border: none;
+    background: none;
+    white-space: nowrap;
+}
+
+.navbar .nav-tab:hover {
+    background: var(--primary-bg);
+    color: var(--primary);
+}
+
+.navbar .nav-tab.active {
+    background: var(--primary);
+    color: #fff;
+}
+
+/* ===== 搜索区域 ===== */
+.search-section {
+    position: fixed;
+    top: 64px; left: 0; right: 0;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+}
+
+.search-box input {
+    width: 100%;
+    height: 40px;
+    padding: 0 16px 0 40px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: .9rem;
+    background: var(--bg);
+    transition: var(--transition);
+    outline: none;
+}
+
+.search-box input:focus {
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(79,70,229,.12);
+}
+
+.search-box .search-icon {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-lighter);
+    pointer-events: none;
+}
+
+.filter-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: .8rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--text-light);
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.chip:hover { border-color: var(--primary-light); color: var(--primary); }
+
+.chip.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.chip[data-cat="chem"].active { background: var(--chem-color); border-color: var(--chem-color); }
+.chip[data-cat="phys"].active { background: var(--phys-color); border-color: var(--phys-color); }
+.chip[data-cat="metal"].active { background: var(--metal-color); border-color: var(--metal-color); }
+
+.sort-select {
+    height: 36px;
+    padding: 0 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: .8rem;
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    transition: var(--transition);
+}
+
+.sort-select:hover { border-color: var(--primary-light); }
+
+.result-count {
+    font-size: .8rem;
+    color: var(--text-light);
+    white-space: nowrap;
+}
+
+.result-count strong { color: var(--primary); }
+
+/* ===== 主内容区 ===== */
+.main-content {
+    margin-top: 132px;
+    padding: 24px;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ===== 内容卡片 ===== */
+.content-item {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: var(--transition);
+    border-left: 4px solid transparent;
+}
+
+.content-item:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.content-item.cat-chem { border-left-color: var(--chem-color); }
+.content-item.cat-phys { border-left-color: var(--phys-color); }
+.content-item.cat-metal { border-left-color: var(--metal-color); }
+
+.content-item .item-header {
+    padding: 14px 18px 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.content-item .item-tag {
+    font-size: .7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.content-item.cat-chem .item-tag { background: #d1fae5; color: #065f46; }
+.content-item.cat-phys .item-tag { background: #ede9fe; color: #5b21b6; }
+.content-item.cat-metal .item-tag { background: #fed7aa; color: #9a3412; }
+
+.content-item .item-type {
+    font-size: .7rem;
+    color: var(--text-lighter);
+    padding: 2px 8px;
+    background: var(--bg);
+    border-radius: 4px;
+}
+
+.content-item .item-title {
+    font-size: .95rem;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+}
+
+.content-item .item-body {
+    padding: 0 18px 14px;
+    font-size: .875rem;
+    color: var(--text);
+    line-height: 1.8;
+}
+
+.content-item .item-body p {
+    margin-bottom: 6px;
+}
+
+.content-item .item-body .formula {
+    display: inline-block;
+    font-family: 'Cambria Math', 'Times New Roman', serif;
+    background: var(--primary-bg);
+    color: var(--primary-dark);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: .85rem;
+}
+
+/* 表格样式 */
+.content-item .item-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: .82rem;
+}
+
+.content-item .item-table th {
+    background: var(--bg);
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+
+.content-item .item-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.content-item .item-table tr:last-child td {
+    border-bottom: none;
+}
+
+.content-item .item-table-wrapper {
+    overflow-x: auto;
+    margin-top: 4px;
+}
+
+/* 高亮搜索结果 */
+.highlight {
+    background: var(--accent-bg);
+    color: #92400e;
+    border-radius: 3px;
+    padding: 0 2px;
+    font-weight: 600;
+}
+
+/* 无结果提示 */
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-light);
+}
+
+.no-results .no-results-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+
+.no-results h3 {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+    color: var(--text);
+}
+
+.no-results p {
+    font-size: .85rem;
+}
+
+/* 搜索结果摘要 */
+.search-snippet {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    margin-top: 8px;
+    font-size: .82rem;
+    color: #78350f;
+    line-height: 1.6;
+}
+
+.search-snippet::before {
+    content: '匹配摘要';
+    font-weight: 600;
+    font-size: .75rem;
+    display: block;
+    color: #92400e;
+    margin-bottom: 2px;
+}
+
+/* 搜索结果统计 */
+.search-stats {
+    background: var(--primary-bg);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    font-size: .82rem;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 回到顶部 */
+.back-to-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition);
+    z-index: 998;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.back-to-top:hover { background: var(--primary-dark); transform: scale(1.1); }
+
+/* 页脚 */
+.footer {
+    text-align: center;
+    padding: 24px;
+    font-size: .8rem;
+    color: var(--text-lighter);
+    border-top: 1px solid var(--border);
+    margin-top: 24px;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+    .navbar { padding: 0 12px; gap: 8px; }
+    .navbar .logo span:not(.icon-text) { display: none; }
+    .navbar .nav-tabs { gap: 2px; }
+    .navbar .nav-tab { padding: 4px 8px; font-size: .78rem; }
+
+    .search-section { padding: 8px 12px; gap: 8px; }
+    .search-box { min-width: 180px; }
+    .search-box input { height: 36px; font-size: .85rem; }
+
+    .main-content { padding: 12px; margin-top: 124px; }
+    .content-item .item-header { padding: 10px 12px 4px; }
+    .content-item .item-body { padding: 0 12px 10px; font-size: .82rem; }
+    .content-item .item-table { font-size: .78rem; }
+    .content-item .item-table th, .content-item .item-table td { padding: 4px 6px; }
+
+    .back-to-top { bottom: 16px; right: 16px; width: 40px; height: 40px; }
+}
+
+@media (max-width: 480px) {
+    .filter-chips { width: 100%; }
+    .sort-select { font-size: .75rem; }
+}
+
+/* 动画 */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.content-item {
+    animation: fadeInUp .3s ease-out;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
+</head>
+<body>
+
+<!-- 顶部导航栏 -->
+<nav class="navbar">
+    <div class="logo">
+        <span class="icon">📚</span>
+        <span class="icon-text">九年级期中复习</span>
+    </div>
+    <div class="nav-tabs">
+        <button class="nav-tab active" data-nav="all">全部</button>
+        <button class="nav-tab" data-nav="chem">化学基础</button>
+        <button class="nav-tab" data-nav="phys">功和能</button>
+        <button class="nav-tab" data-nav="metal">金属</button>
+    </div>
+</nav>
+
+<!-- 搜索区域 -->
+<div class="search-section">
+    <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="输入关键词搜索，如：氧化还原、功率、铁生锈..." autocomplete="off">
+    </div>
+    <div class="filter-chips" id="filterChips">
+        <span class="chip active" data-cat="all">全部</span>
+        <span class="chip" data-cat="chem">化学</span>
+        <span class="chip" data-cat="phys">物理</span>
+        <span class="chip" data-cat="metal">金属</span>
+    </div>
+    <select class="sort-select" id="sortSelect">
+        <option value="default">默认顺序</option>
+        <option value="category">按类别</option>
+        <option value="type">按类型</option>
+        <option value="title">按标题</option>
+    </select>
+    <span class="result-count" id="resultCount"></span>
+</div>
+
+<!-- 主内容区 -->
+<main class="main-content">
+    <div id="contentArea"></div>
+</main>
+
+<!-- 回到顶部 -->
+<button class="back-to-top" id="backToTop" title="回到顶部">↑</button>
+
+<!-- 页脚 -->
+<footer class="footer">
+    九年级上学期期中考试复习资料 · 化学基础 · 功和能 · 金属 &nbsp;|&nbsp; 依据课本与教材全解整理
+</footer>
+
+<script>
+// ===== 数据层：结构化复习资料 =====
+const DATA = [
+    // ===== 第一篇：化学基础 =====
+    {id:1, cat:"chem", type:"概念", title:"化学研究的对象与物质的变化",
+     body:"化学是在分子、原子层次上研究物质的组成、结构、性质以及变化规律的自然科学。学习化学首先要区分物理变化与化学变化、物理性质与化学性质。",
+     keywords:["化学","分子","原子","物质","变化"]},
+
+    {id:2, cat:"chem", type:"表格", title:"表1-1 物理变化与化学变化对比",
+     table:{headers:["比较项","物理变化","化学变化"],
+            rows:[
+                ["本质特征","没有生成其他（新）物质","生成了其他（新）物质"],
+                ["常见现象","状态、形状、大小改变","常伴随发光、放热、变色、放出气体、生成沉淀等"],
+                ["判断依据","是否有新物质生成（根本依据）","是否有新物质生成（根本依据）"],
+                ["实例","冰雪融化、酒精挥发、玻璃破碎","铁生锈、木炭燃烧、食物腐烂、葡萄酿酒"]
+            ]},
+     keywords:["物理变化","化学变化","新物质","发光","沉淀"]},
+
+    {id:3, cat:"chem", type:"提醒", title:"特别提醒：核反应不属于化学变化",
+     body:"核反应（核裂变、核聚变）不属于化学变化。化学变化中原子只是重新组合，元素种类不变；核反应改变了原子核、元素种类发生了改变，因此不是化学变化。",
+     keywords:["核反应","核裂变","核聚变","元素"]},
+
+    {id:4, cat:"chem", type:"概念", title:"物理性质与化学性质",
+     body:"<p>· <b>物理性质</b>：颜色、状态、气味、熔点、沸点、硬度、密度、溶解性、挥发性、导电性、导热性、延展性等，不需要发生化学变化就能表现出来。</p><p>· <b>化学性质</b>：可燃性、氧化性、还原性、稳定性、酸碱性、腐蚀性、金属活动性等，只有在化学变化中才能表现出来。</p>",
+     keywords:["物理性质","化学性质","熔点","沸点","密度","溶解性","可燃性"]},
+
+    {id:5, cat:"chem", type:"概念", title:"原子的构成",
+     body:"<p>原子由居于中心的原子核和核外电子构成；原子核由带正电的质子和不带电的中子构成，电子带负电。</p><p>· 每个质子带 1 个单位正电荷，每个电子带 1 个单位负电荷，中子不带电。</p><p>· 在原子中：<b>质子数 = 核电荷数 = 核外电子数</b>，正负电荷总数相等，所以整个原子不显电性（电中性）。</p><p>· <b>相对原子质量 ≈ 质子数 + 中子数</b>。</p>",
+     keywords:["原子","原子核","质子","中子","电子","电荷","电中性"]},
+
+    {id:6, cat:"chem", type:"表格", title:"表1-2 常见元素的相对原子质量",
+     table:{headers:["元素","H","C","N","O","Na","Mg","S","Cl","K","Ca","Fe","Cu","Zn","Ag","Ba"],
+            rows:[["相对原子质量","1","12","14","16","23","24","32","35.5","39","40","56","64","65","108","137"]]},
+     keywords:["相对原子质量","元素","H","C","N","O","Fe","Cu","Zn"]},
+
+    {id:7, cat:"chem", type:"表格", title:"表1-3 常见物质的相对分子质量",
+     table:{headers:["物质","H₂O","CO₂","CO","O₂","HCl","H₂SO₄","HNO₃","NaOH","Ca(OH)₂","Mg(OH)₂","CaCO₃","CuSO₄","Fe₂O₃","CuO","BaSO₄"],
+            rows:[["相对分子质量","18","44","28","32","36.5","98","63","40","74","58","100","160","160","80","233"]]},
+     keywords:["相对分子质量","H2O","CO2","H2SO4","NaOH","CaCO3"]},
+
+    {id:8, cat:"chem", type:"操作", title:"常见仪器与实验基本操作",
+     body:"<p>常用仪器：试管、烧杯、量筒、托盘天平、酒精灯、胶头滴管、玻璃棒、集气瓶、铁架台、漏斗、蒸发皿等。可直接加热的有试管、蒸发皿、燃烧匙；烧杯、烧瓶加热需垫石棉网；量筒不能加热，也不能作反应容器。</p>",
+     keywords:["试管","烧杯","量筒","酒精灯","加热","仪器"]},
+
+    {id:9, cat:"chem", type:"操作", title:"药品取用规则",
+     body:"<p>· <b>三不原则</b>：不能用手接触药品，不要把鼻孔凑到容器口闻气味，不得尝任何药品的味道。</p><p>· <b>节约用量</b>：未说明用量时，液体取 1～2 mL，固体盖满试管底部即可。</p><p>· <b>剩余药品</b>放入指定容器，不能放回原瓶，不能随意丢弃，更不能拿出实验室。</p><p>· <b>液体倾倒</b>时标签向着手心、瓶塞倒放；滴加液体时胶头滴管垂直悬空于容器口上方。</p>",
+     keywords:["药品","取用","三不原则","节约","安全"]},
+
+    {id:10, cat:"chem", type:"操作", title:"加热与称量",
+     body:"<p>· 酒精灯<b>外焰温度最高</b>，用外焰加热；熄灭用灯帽盖灭，不可用嘴吹。</p><p>· 试管内液体不超过容积的 <b>1/3</b>，先预热再集中加热，试管口不对着人。</p><p>· 量筒读数视线与凹液面最低处保持水平；托盘天平<b>左物右码</b>，易潮解、有腐蚀性的药品放在玻璃器皿中称量。</p>",
+     keywords:["酒精灯","外焰","加热","称量","天平","量筒"]},
+
+    {id:11, cat:"chem", type:"操作", title:"浓硫酸的稀释",
+     body:"<p>稀释浓硫酸时，一定要把<b>浓硫酸沿器壁慢慢注入水中</b>，并用玻璃棒不断搅拌，使热量迅速扩散；<b>切不可将水倒入浓硫酸中</b>。若浓硫酸沾到皮肤上，立即用大量水冲洗，再涂上 3%～5% 的碳酸氢钠溶液。</p>",
+     keywords:["浓硫酸","稀释","玻璃棒","搅拌","碳酸氢钠"]},
+
+    {id:12, cat:"chem", type:"操作", title:"过滤操作：一贴、二低、三靠",
+     body:"<p>· <b>一贴</b>：滤纸紧贴漏斗内壁。</p><p>· <b>二低</b>：滤纸边缘低于漏斗口；液面低于滤纸边缘。</p><p>· <b>三靠</b>：烧杯口紧靠玻璃棒；玻璃棒下端轻靠三层滤纸一侧；漏斗下端尖嘴紧靠烧杯内壁。</p><p><b>玻璃棒的作用</b>：过滤时起引流作用；稀释浓硫酸时搅拌散热。</p>",
+     keywords:["过滤","一贴","二低","三靠","玻璃棒","引流"]},
+
+    {id:13, cat:"chem", type:"概念", title:"物质的分类",
+     body:"<p>根据组成成分的多少，物质分为<b>纯净物</b>和<b>混合物</b>；纯净物按元素种类分为<b>单质</b>和<b>化合物</b>，化合物再按是否含氧、按组成细分。</p>",
+     keywords:["纯净物","混合物","单质","化合物","分类"]},
+
+    {id:14, cat:"chem", type:"概念", title:"酸、碱、盐的概念",
+     body:"<p>· <b>酸</b>：在水溶液中电离出的阳离子全部是氢离子（H⁺）的化合物，由氢离子和酸根离子构成。</p><p>· <b>碱</b>：在水溶液中电离出的阴离子全部是氢氧根离子（OH⁻）的化合物，由金属离子（或铵根离子 NH₄⁺）和氢氧根离子构成。</p><p>· <b>盐</b>：由金属离子（或铵根离子）和酸根离子构成的化合物。</p><p><b>六大强酸</b>：盐酸 HCl、硫酸 H₂SO₄、硝酸 HNO₃、高氯酸 HClO₄、氢溴酸 HBr、氢碘酸 HI。</p>",
+     keywords:["酸","碱","盐","氢离子","氢氧根","强酸","HCl","H2SO4"]},
+
+    {id:15, cat:"chem", type:"表格", title:"表1-4 常见的酸、碱、盐",
+     table:{headers:["类别","名称","化学式","主要特点或用途"],
+            rows:[
+                ["酸","盐酸","HCl","胃酸的主要成分，用于金属除锈、制造药物"],
+                ["酸","硫酸","H₂SO₄","重要化工原料；浓硫酸有吸水性、脱水性，可作干燥剂"],
+                ["酸","硝酸","HNO₃","强氧化性酸"],
+                ["酸","高氯酸","HClO₄","已知最强的无机酸之一"],
+                ["酸","氢溴酸/氢碘酸","HBr/HI","强酸，常用作还原性酸"],
+                ["碱","氢氧化钠","NaOH","俗称烧碱、火碱、苛性钠，强腐蚀性，易潮解"],
+                ["碱","氢氧化钙","Ca(OH)₂","俗称熟石灰、消石灰，微溶于水"],
+                ["碱","氢氧化镁","Mg(OH)₂","难溶于水，可中和过多胃酸，用于抗酸胃药"],
+                ["盐","氯化钠","NaCl","食盐主要成分，易溶于水"],
+                ["盐","碳酸钠","Na₂CO₃","俗称纯碱、苏打，水溶液呈碱性"],
+                ["盐","碳酸氢钠","NaHCO₃","俗称小苏打，受热易分解，也可中和胃酸"],
+                ["盐","碳酸钙","CaCO₃","大理石、石灰石主要成分，难溶于水"]
+            ]},
+     keywords:["盐酸","硫酸","硝酸","氢氧化钠","氢氧化钙","氯化钠","碳酸钠","小苏打","碳酸钙"]},
+
+    {id:16, cat:"chem", type:"规律", title:"酸的五条通性",
+     body:"<p>· 酸能使紫色石蕊试液变红，无色酚酞试液不变色。</p><p>· <b>酸 + 活泼金属 → 盐 + 氢气</b>，如 Zn + H₂SO₄ = ZnSO₄ + H₂↑。</p><p>· <b>酸 + 金属氧化物 → 盐 + 水</b>，如 Fe₂O₃ + 6HCl = 2FeCl₃ + 3H₂O（除锈）。</p><p>· <b>酸 + 碱 → 盐 + 水</b>（中和反应），如 NaOH + HCl = NaCl + H₂O。</p><p>· <b>酸 + 某些盐 → 新酸 + 新盐</b>，如 AgNO₃ + HCl = AgCl↓ + HNO₃。</p>",
+     keywords:["酸的通性","石蕊","酚酞","中和反应","活泼金属","氢气"]},
+
+    {id:17, cat:"chem", type:"规律", title:"碱的四条通性",
+     body:"<p>· 碱能使紫色石蕊试液变蓝，无色酚酞试液变红。</p><p>· <b>碱 + 酸 → 盐 + 水</b>（中和反应）。</p><p>· <b>碱 + 某些非金属氧化物 → 盐 + 水</b>，如 CO₂ + Ca(OH)₂ = CaCO₃↓ + H₂O。</p><p>· <b>碱 + 某些盐 → 新碱 + 新盐</b>，如 CuSO₄ + 2NaOH = Cu(OH)₂↓ + Na₂SO₄。</p>",
+     keywords:["碱的通性","石蕊变蓝","酚酞变红","中和反应","非金属氧化物"]},
+
+    {id:18, cat:"chem", type:"规律", title:"盐的四条通性",
+     body:"<p>· <b>盐 + 金属 → 新盐 + 新金属</b>（前置后、盐要可溶），如 Fe + CuSO₄ = FeSO₄ + Cu。</p><p>· <b>盐 + 酸 → 新盐 + 新酸</b>，如 Na₂CO₃ + 2HCl = 2NaCl + H₂O + CO₂↑。</p><p>· <b>盐 + 碱 → 新盐 + 新碱</b>（两者均可溶），如 Na₂CO₃ + Ca(OH)₂ = CaCO₃↓ + 2NaOH。</p><p>· <b>盐 + 盐 → 两种新盐</b>（两者均可溶，生成沉淀），如 NaCl + AgNO₃ = AgCl↓ + NaNO₃。</p>",
+     keywords:["盐的通性","置换","沉淀","金属","可溶"]},
+
+    {id:19, cat:"chem", type:"表格", title:"表1-5 指示剂在不同酸碱性溶液中的颜色",
+     table:{headers:["指示剂","酸性溶液","中性溶液","碱性溶液"],
+            rows:[
+                ["紫色石蕊试液","红色","紫色","蓝色"],
+                ["无色酚酞试液","无色","无色","红色"]
+            ]},
+     keywords:["指示剂","石蕊","酚酞","酸性","碱性","中性"]},
+
+    {id:20, cat:"chem", type:"概念", title:"溶液酸碱性强弱——pH",
+     body:"<p>· pH 通常在 0～14 之间：<b>pH < 7 呈酸性</b>（越小酸性越强），<b>pH = 7 呈中性</b>，<b>pH > 7 呈碱性</b>（越大碱性越强）。</p><p>· pH 可以等于 0，甚至小于 0：例如质量分数约 3.6% 的盐酸 pH≈0。</p><p><b>测定方法</b>：用洁净、干燥的玻璃棒蘸取待测溶液，滴在 pH 试纸上，待显色稳定后与标准比色卡比较。</p>",
+     keywords:["pH","酸碱","酸性","碱性","中性","试纸","比色卡"]},
+
+    {id:21, cat:"chem", type:"提醒", title:"易错提示：pH试纸使用注意事项",
+     body:"pH 试纸不能直接浸入待测液（会污染试剂）；不能先用水润湿，否则酸性溶液测得 pH 偏大，碱性溶液偏小；不能把 pH 当作只能在 1～14 之间。",
+     keywords:["pH试纸","易错","润湿","污染"]},
+
+    {id:22, cat:"chem", type:"表格", title:"表1-6 四种基本反应类型对比",
+     table:{headers:["反应类型","形式与特点","化合价","举例"],
+            rows:[
+                ["化合反应","多变一：A + B → AB","可能改变","C + O₂ → CO₂"],
+                ["分解反应","一变多：AB → A + B","可能改变","2H₂O₂ → 2H₂O + O₂↑"],
+                ["置换反应","一换一：单质+化合物→新单质+新化合物","一定改变","Zn + H₂SO₄ = ZnSO₄ + H₂↑"],
+                ["复分解反应","双交换、价不变","一定不变","NaOH + HCl = NaCl + H₂O"]
+            ]},
+     keywords:["化合反应","分解反应","置换反应","复分解反应","化合价"]},
+
+    {id:23, cat:"chem", type:"提醒", title:"复分解反应发生条件",
+     body:"复分解反应发生条件：生成物中有沉淀、气体或弱电解质生成。弱电解质指弱酸、弱碱、水等（即除强酸、强碱、可溶性盐以外的物质），三者满足其一反应即可发生。中和反应属于复分解反应。",
+     keywords:["复分解反应","沉淀","气体","弱电解质","中和反应"]},
+
+    {id:24, cat:"chem", type:"概念", title:"氧化还原反应",
+     body:"<p>物质得到氧的反应叫做<b>氧化反应</b>；含氧化合物里的氧被夺去的反应叫做<b>还原反应</b>。一种物质被氧化、同时另一种物质被还原的反应，叫做<b>氧化还原反应</b>。</p><p>· 特征：反应前后有元素<b>化合价</b>发生升降。</p><p>· 得氧的物质是<b>还原剂</b>（被氧化），失氧的物质是<b>氧化剂</b>（被还原）。</p><p>· 举例：C + 2CuO → 2Cu + CO₂↑，C 是还原剂，CuO 是氧化剂。</p>",
+     keywords:["氧化还原","氧化反应","还原反应","化合价","还原剂","氧化剂"]},
+
+    {id:25, cat:"chem", type:"表格", title:"表1-7 常见有色溶液（离子颜色）",
+     table:{headers:["离子（物质）","颜色","举例"],
+            rows:[
+                ["铁离子 Fe³⁺","黄色","FeCl₃ 溶液、Fe₂(SO₄)₃ 溶液"],
+                ["亚铁离子 Fe²⁺","浅绿色","FeCl₂ 溶液、FeSO₄ 溶液"],
+                ["铜离子 Cu²⁺","蓝色","CuSO₄ 溶液、CuCl₂ 溶液"]
+            ]},
+     keywords:["铁离子","Fe3+","黄色","亚铁离子","Fe2+","浅绿色","铜离子","Cu2+","蓝色"]},
+
+    {id:26, cat:"chem", type:"表格", title:"表1-8 常见沉淀及其颜色",
+     table:{headers:["物质","颜色","特点"],
+            rows:[
+                ["氢氧化铜 Cu(OH)₂","蓝色","絮状沉淀"],
+                ["氢氧化铁 Fe(OH)₃","红褐色","絮状沉淀"],
+                ["氯化银 AgCl","白色","不溶于稀硝酸"],
+                ["硫酸钡 BaSO₄","白色","不溶于稀硝酸"],
+                ["碳酸钙/碳酸钡","白色","可溶于酸并放出气体"]
+            ]},
+     keywords:["沉淀","氢氧化铜","蓝色","氢氧化铁","红褐色","氯化银","AgCl","硫酸钡","BaSO4","白色"]},
+
+    {id:27, cat:"chem", type:"表格", title:"表1-9 常见固体颜色",
+     table:{headers:["颜色","物质"],
+            rows:[
+                ["红色/红棕色","铜（紫红色）、氧化铁 Fe₂O₃（红棕色，铁锈主要成分）"],
+                ["蓝色","五水硫酸铜 CuSO₄·5H₂O（蓝矾、胆矾）"],
+                ["黑色","铁粉、四氧化三铁 Fe₃O₄、二氧化锰 MnO₂、活性炭、氧化铜 CuO"]
+            ]},
+     keywords:["固体颜色","铜","氧化铁","铁锈","硫酸铜","胆矾","黑色","Fe3O4","MnO2","CuO"]},
+
+    {id:28, cat:"chem", type:"表格", title:"表1-10 常见化肥分类与作用",
+     table:{headers:["类别","作用","代表物质"],
+            rows:[
+                ["氮肥（N）","促进作物茎叶生长茂盛、叶色浓绿","NH₄NO₃、CO(NH₂)₂（尿素）、NH₄Cl"],
+                ["磷肥（P）","促进根系发达，增强抗寒、抗旱能力","Ca(H₂PO₄)₂"],
+                ["钾肥（K）","使茎秆健壮，增强抗病虫害、抗倒伏能力","KCl、K₂SO₄"],
+                ["复合肥","同时含 N、P、K 中两种或以上营养元素","KNO₃、NH₄H₂PO₄"]
+            ]},
+     keywords:["化肥","氮肥","磷肥","钾肥","复合肥","尿素","铵"]},
+
+    {id:29, cat:"chem", type:"概念", title:"铵盐的性质与检验",
+     body:"<p>铵盐是含有铵根离子（NH₄⁺）的盐，如 NH₄Cl、NH₄HCO₃、(NH₄)₂SO₄。</p><p>· <b>不能与碱性物质混合施用</b>，否则反应放出氨气，造成肥效下降。</p><p>· <b>检验方法</b>：取少量样品与碱混合，必要时加热，产生有刺激性气味的气体（氨气）；该气体能使紫色石蕊试液变蓝。</p><p>反应示例：NH₄Cl + NaOH → NaCl + NH₃↑ + H₂O。</p>",
+     keywords:["铵盐","铵根","NH4","氨气","检验","石蕊","碱性"]},
+
+    {id:30, cat:"chem", type:"拓展", title:"侯氏制碱法",
+     body:"<p>侯氏制碱法（联合制碱法）由我国化学家<b>侯德榜</b>发明，以食盐、氨气、二氧化碳和水为原料制取纯碱（Na₂CO₃），副产品氯化铵可作氮肥。</p><p>· 第一步：NaCl + NH₃ + CO₂ + H₂O = NaHCO₃↓ + NH₄Cl。</p><p>· 第二步：2NaHCO₃ → Na₂CO₃ + H₂O + CO₂↑。</p>",
+     keywords:["侯氏制碱法","侯德榜","纯碱","Na2CO3","碳酸钠","氯化铵"]},
+
+    // ===== 第二篇：功和能 =====
+    {id:31, cat:"phys", type:"概念", title:"做功的两个必要因素",
+     body:"<p>· 作用在物体上的<b>力</b>；</p><p>· 物体在<b>力的方向上通过的距离</b>。二者缺一不可。</p>",
+     keywords:["功","力","距离","必要因素"]},
+
+    {id:32, cat:"phys", type:"公式", title:"功的计算",
+     body:"<p><span class='formula'>W = F·s</span>　<span class='formula'>W = G·h</span>（克服重力做功）</p><p>单位：焦耳（J），1 J = 1 N·m。</p><p>W = Fs 中 s 必须是物体在<b>力的方向上</b>移动的距离；物体斜向上运动时，克服重力做功只按竖直方向上升的高度 h 计算。</p>",
+     keywords:["功","公式","W=Fs","焦耳","J","重力"]},
+
+    {id:33, cat:"phys", type:"表格", title:"表2-1 不做功的三种典型情形",
+     table:{headers:["情形","特点","实例"],
+            rows:[
+                ["有力无距离","受力但静止","用力推汽车，汽车未动"],
+                ["有距离无力","靠惯性运动","踢出的足球在地面滚动"],
+                ["力与距离垂直","力的方向与运动方向垂直","手提水桶水平匀速前进，提力不做功"]
+            ]},
+     keywords:["不做功","有力无距离","有距离无力","惯性","垂直"]},
+
+    {id:34, cat:"phys", type:"公式", title:"功率",
+     body:"<p><span class='formula'>P = W/t</span>（定义式）　<span class='formula'>P = F·v</span>（推导式）</p><p>单位：瓦特（W），1 kW = 1000 W。功率表示做功的<b>快慢</b>。</p><p>由 P = Fv 可知：功率一定时，牵引力越大，速度越小（汽车上坡减速爬坡）。</p>",
+     keywords:["功率","P=W/t","P=Fv","瓦特","W","做功快慢"]},
+
+    {id:35, cat:"phys", type:"概念", title:"有用功、总功与额外功",
+     body:"<p>· <b>有用功（W有）</b>：为达到目的必须做的功，如把物体提升 h 所做的 W有 = Gh。</p><p>· <b>额外功（W额）</b>：并非需要但不得不做的功，如克服斜面摩擦、克服动滑轮重力做的功。</p><p>· <b>总功（W总）</b>：动力做的全部功，W总 = W有 + W额。</p>",
+     keywords:["有用功","总功","额外功","机械效率"]},
+
+    {id:36, cat:"phys", type:"公式", title:"机械效率",
+     body:"<p><span class='formula'>η = W有 / W总 × 100%</span></p><p>η 总小于 1；机械效率与做功快慢（功率）<b>没有必然联系</b>。</p>",
+     keywords:["机械效率","η","有用功","总功","功率"]},
+
+    {id:37, cat:"phys", type:"概念", title:"动能",
+     body:"<p>物体由于运动而具有的能叫<b>动能</b>。影响因素：质量和速度——质量相同时速度越大动能越大；速度相同时质量越大动能越大。</p><p><span class='formula'>Ek = ½ m v²</span></p>",
+     keywords:["动能","质量","速度","Ek","机械能"]},
+
+    {id:38, cat:"phys", type:"概念", title:"重力势能与弹性势能",
+     body:"<p>· <b>重力势能</b>：物体由于被举高而具有的能，影响因素为质量和高度；<span class='formula'>Ep = mgh</span>。</p><p>· <b>弹性势能</b>：物体发生弹性形变而具有的能，弹性形变越大，弹性势能越大；<span class='formula'>E = ½ k x²</span>。</p>",
+     keywords:["重力势能","弹性势能","高度","形变","Ep","mgh"]},
+
+    {id:39, cat:"phys", type:"概念", title:"动能与势能的相互转化",
+     body:"<p>动能与势能统称为<b>机械能</b>。不计摩擦和空气阻力时，动能与势能相互转化，<b>机械能总量保持不变</b>。</p><p>· 小球砸弹簧：高处重力势能最大 → 接触弹簧后转化为动能 → 压缩到最低点时全部转化为弹性势能。</p><p>· 皮球掉地：势能→动能→弹性势能→动能→势能；因克服阻力做功，不能弹回原高度。</p><p>· 竖直上抛排球：上升时动能→势能，最高点动能为 0、势能最大；下落时势能→动能。</p>",
+     keywords:["机械能","动能","势能","转化","守恒","小球","弹簧","皮球","上抛"]},
+
+    {id:40, cat:"phys", type:"概念", title:"内能及其改变",
+     body:"<p>· 物体内部所有分子热运动的动能与分子势能的总和叫做<b>内能</b>；一切物体都有内能。</p><p>· 改变内能的两种方式：<b>做功</b>（如锯木头锯条发热、压缩空气）和<b>热传递</b>（如热水袋取暖、酒精灯加热），二者在改变内能上是等效的。</p>",
+     keywords:["内能","分子","动能","势能","做功","热传递"]},
+
+    {id:41, cat:"phys", type:"公式", title:"比热容、热量与燃料效率",
+     body:"<p><span class='formula'>Q吸 = c·m·Δt</span>　<span class='formula'>Q放 = m·q</span>（固液）　<span class='formula'>η = Q吸/Q放 × 100%</span></p><p>· c 为比热容，单位 J/(kg·℃)；水的比热容 c水 = 4.2×10³ J/(kg·℃)。</p><p>· 比热容是物质的特性，与质量、吸放热多少、温度变化无关；q 为燃料热值，只与燃料种类有关。</p>",
+     keywords:["比热容","热量","燃料","效率","Q=cmΔt","热值","水"]},
+
+    {id:42, cat:"phys", type:"概念", title:"核能",
+     body:"<p>· <b>重核裂变</b>：重原子核分裂为较轻原子核，发生链式反应，用于核电站、原子弹。</p><p>· <b>轻核聚变</b>：较轻原子核结合成较重原子核，用于氢弹，也是太阳释放能量的方式。</p>",
+     keywords:["核能","裂变","聚变","链式反应","核电站","原子弹","氢弹","太阳"]},
+
+    {id:43, cat:"phys", type:"表格", title:"表2-2 三种放射线的本质",
+     table:{headers:["射线","本质","特点"],
+            rows:[
+                ["α 射线","高速氦原子核（He²⁺）流","带正电，穿透能力最弱"],
+                ["β 射线","高速电子流","带负电，穿透能力较强"],
+                ["γ 射线","高能电磁波","不带电，穿透能力最强"]
+            ]},
+     keywords:["射线","α","β","γ","氦","电子","电磁波","穿透"]},
+
+    {id:44, cat:"phys", type:"公式", title:"欧姆定律",
+     body:"<p><span class='formula'>I = U / R</span>（即 U = IR，R = U/I）</p><p>电阻是导体本身的性质，与两端电压、通过电流无关。</p>",
+     keywords:["欧姆定律","电流","电压","电阻","I=U/R"]},
+
+    {id:45, cat:"phys", type:"公式", title:"电功与电功率",
+     body:"<p><span class='formula'>W = U·I·t</span>　<span class='formula'>P = U·I</span></p><p>纯电阻电路推导式：<span class='formula'>W = I²Rt = U²t/R</span>，<span class='formula'>P = I²R = U²/R</span>。</p><p>· <b>纯电阻电路</b>：电能全部转化为内能，如电阻丝、白炽灯。</p><p>· <b>非纯电阻电路</b>：如电动机，电能大部分转化为机械能，此时 W > Q，只能用 W = UIt、P = UI。</p>",
+     keywords:["电功","电功率","W=UIt","P=UI","纯电阻","电动机"]},
+
+    {id:46, cat:"phys", type:"概念", title:"串联与并联电路",
+     body:"<p>· <b>串联</b>：电流处处相等 I = I₁ = I₂；U = U₁ + U₂；R = R₁ + R₂；电压按电阻成正比分配。</p><p>· <b>并联</b>：各支路电压相等；I = I₁ + I₂；电流按电阻成反比分配。</p>",
+     keywords:["串联","并联","电流","电压","电阻","电路"]},
+
+    // ===== 第三篇：金属 =====
+    {id:47, cat:"metal", type:"概念", title:"金属的共同物理性质",
+     body:"<p>· 常温下大多为固体（汞 Hg 是液体），有金属光泽，大多数呈银白色（铜紫红色、金黄色）。</p><p>· 良好的<b>导电性、导热性</b>；<b>延性</b>（能拉成细丝）和<b>展性</b>（能压成薄片）。</p>",
+     keywords:["金属","物理性质","固体","光泽","导电","导热","延展","汞"]},
+
+    {id:48, cat:"metal", type:"概念", title:"合金",
+     body:"<p>合金是由一种金属跟其他金属（或非金属）熔合形成的、具有金属特征的<b>混合物</b>。</p><p>· <b>铁的合金</b>：生铁含碳 2%～4.3%；钢含碳 0.03%～2%，钢也叫熟铁，质地比生铁坚韧。</p><p>· 与纯金属相比：合金硬度一般更大、熔点一般更低、抗腐蚀性更强。</p>",
+     keywords:["合金","生铁","钢","含碳量","硬度","熔点","抗腐蚀"]},
+
+    {id:49, cat:"metal", type:"表格", title:"表3-1 金属与氧气的反应",
+     table:{headers:["金属","反应现象 / 说明","化学方程式"],
+            rows:[
+                ["镁 Mg","空气中剧烈燃烧，耀眼白光，生成白色固体","2Mg + O₂ → 2MgO"],
+                ["铁 Fe","氧气中火星四射，生成黑色固体","3Fe + 2O₂ → Fe₃O₄"],
+                ["铝 Al","常温生成致密氧化铝薄膜，阻止继续氧化","4Al + 3O₂ = 2Al₂O₃"],
+                ["铜 Cu","空气中加热，表面由紫红变黑","2Cu + O₂ → 2CuO"]
+            ]},
+     keywords:["金属","氧气","镁","铁","铝","铜","燃烧","氧化"]},
+
+    {id:50, cat:"metal", type:"反应", title:"金属与酸反应（活泼金属 + 酸 → 盐 + 氢气）",
+     body:"<p>· Zn + H₂SO₄ = ZnSO₄ + H₂↑</p><p>· Fe + 2HCl = FeCl₂ + H₂↑（生成浅绿色亚铁盐）</p><p>· Mg + 2HCl = MgCl₂ + H₂↑</p><p><b>铁与稀酸置换生成亚铁盐（Fe²⁺），不是 Fe³⁺</b>；排在氢后的金属（Cu、Ag 等）不能置换酸中的氢。</p>",
+     keywords:["金属","酸","活泼金属","盐","氢气","锌","铁","镁","亚铁"]},
+
+    {id:51, cat:"metal", type:"反应", title:"金属与盐溶液反应（金属 + 盐 → 新金属 + 新盐）",
+     body:"<p>· <b>Fe + CuSO₄ = FeSO₄ + Cu</b>：铁表面析出红色固体，溶液由蓝变浅绿（湿法炼铜原理）。</p><p>· <b>Cu + 2AgNO₃ = Cu(NO₃)₂ + 2Ag</b>：铜表面析出银白色固体，溶液变蓝。</p>",
+     keywords:["金属","盐溶液","置换","铁","铜","硫酸铜","硝酸银","湿法炼铜"]},
+
+    {id:52, cat:"metal", type:"规律", title:"金属活动性顺序",
+     body:"<p>活动性顺序（由强到弱）：<br>K Ca Na Mg Al Zn Fe Sn Pb (H) Cu Hg Ag Pt Au</p><p>· 位置越靠前，金属活动性越强。</p><p>· 排在<b>氢前</b>的金属能置换稀盐酸、稀硫酸中的氢。</p><p>· 排在<b>前面</b>的金属能把后面的金属从其盐溶液中置换出来（K、Ca、Na 除外）。</p>",
+     keywords:["金属活动性","顺序","钾","钙","钠","镁","铝","锌","铁","铜","银","金","氢"]},
+
+    {id:53, cat:"metal", type:"提醒", title:"反应先后规律",
+     body:"金属与多种盐的混合溶液反应时，活动性差距越远（离得远的）越先反应。如把 Zn 放入 Cu(NO₃)₂ 与 AgNO₃ 的混合液，先置换 Ag（Zn 与 Ag 差距最大），AgNO₃ 反应完后再置换 Cu。",
+     keywords:["反应先后","混合溶液","置换","活动性","锌","铜","银"]},
+
+    {id:54, cat:"metal", type:"概念", title:"置换反应",
+     body:"<p>由一种单质与一种化合物反应，生成另一种单质和另一种化合物的反应，形式为<b>「单质 + 化合物 → 新单质 + 新化合物」</b>，特点「一换一」，反应前后一定有元素化合价改变。</p><p>· 金属 + 酸 → 盐 + 氢气：Zn + H₂SO₄ = ZnSO₄ + H₂↑。</p><p>· 金属 + 盐 → 新金属 + 新盐：Fe + CuSO₄ = FeSO₄ + Cu。</p><p>· H₂ + CuO → Cu + H₂O 属于置换反应；<b>CO 还原金属氧化物不属于置换反应</b>（生成两种化合物）。</p>",
+     keywords:["置换反应","单质","化合物","化合价","一换一"]},
+
+    {id:55, cat:"metal", type:"反应", title:"一氧化碳还原氧化铁（炼铁原理）",
+     body:"<p><span class='formula'>3CO + Fe₂O₃ → 2Fe + 3CO₂</span></p><p>现象：红棕色粉末逐渐变黑，澄清石灰水变浑浊。</p><p><b>操作顺序</b>：先通 CO 排尽装置内空气再加热（防爆炸）；结束先停加热，继续通 CO 至玻璃管冷却（防铁被氧化、防石灰水倒吸）。</p><p><b>尾气</b> CO 有毒，需点燃或收集处理，不能直接排放。</p>",
+     keywords:["一氧化碳","氧化铁","炼铁","CO","Fe2O3","还原","石灰水","尾气"]},
+
+    {id:56, cat:"metal", type:"概念", title:"湿法炼铜",
+     body:"<p><span class='formula'>Fe + CuSO₄ = FeSO₄ + Cu</span></p><p>我国古代已掌握湿法炼铜技术。铁表面析出红色固体，溶液由蓝色逐渐变为浅绿色。</p>",
+     keywords:["湿法炼铜","铁","硫酸铜","古代","Fe","CuSO4"]},
+
+    {id:57, cat:"metal", type:"操作", title:"实验操作口诀",
+     body:"<p>· <b>高锰酸钾制氧气</b>：「查、装、定、点、收、离、熄」——检查气密性、装药品、固定装置、点燃加热、收集气体、移离导管、熄灭酒精灯。</p><p>· <b>氢气还原金属氧化物</b>：「氢气早出晚归，酒精灯迟到早退」——先通氢气排空气再点灯（早出）；结束先撤灯，继续通氢气至冷却（晚归）。</p>",
+     keywords:["高锰酸钾","制氧气","口诀","查装定点收离熄","氢气","还原","酒精灯"]},
+
+    {id:58, cat:"metal", type:"概念", title:"金属的锈蚀与保护",
+     body:"<p>· 铁生锈是铁与空气中的<b>氧气、水</b>共同作用的结果，缺一不可；酸、盐会加快锈蚀。</p><p>· <b>防锈</b>：保持表面洁净干燥；涂油、刷漆、镀金属等覆盖保护膜；制成不锈钢等合金。</p><p>· <b>保护金属资源</b>：合理开采、回收利用废旧金属、寻找金属代用品。</p>",
+     keywords:["铁生锈","锈蚀","氧气","水","防锈","涂油","刷漆","回收"]},
+
+    {id:59, cat:"metal", type:"拓展", title:"本篇必背化学方程式与反应现象",
+     body:"<p>· <b>镁燃烧</b>：剧烈燃烧，耀眼白光，生成白色固体（2Mg + O₂ → 2MgO）。</p><p>· <b>铁燃烧</b>：火星四射，生成黑色固体（3Fe + 2O₂ → Fe₃O₄）。</p><p>· <b>铝氧化</b>：常温生成致密氧化铝薄膜，抗腐蚀（4Al + 3O₂ = 2Al₂O₃）。</p><p>· <b>铜加热</b>：紫红变黑（2Cu + O₂ → 2CuO）。</p><p>· <b>锌与酸</b>：大量气泡，锌溶解（Zn + H₂SO₄ = ZnSO₄ + H₂↑）。</p><p>· <b>铁与酸</b>：气泡，溶液变浅绿色（Fe + 2HCl = FeCl₂ + H₂↑）。</p><p>· <b>铁与硫酸铜</b>：析出红色固体，溶液蓝→浅绿（Fe + CuSO₄ = FeSO₄ + Cu）。</p><p>· <b>铜与硝酸银</b>：析出银白色固体，溶液变蓝（Cu + 2AgNO₃ = Cu(NO₃)₂ + 2Ag）。</p><p>· <b>CO还原Fe₂O₃</b>：红棕色变黑，石灰水变浑浊（3CO + Fe₂O₃ → 2Fe + 3CO₂）。</p><p>· <b>H₂还原CuO</b>：黑色变红，试管口有水珠（H₂ + CuO → Cu + H₂O）。</p>",
+     keywords:["方程式","现象","镁","铁","铝","铜","锌","CO","H2","必背"]}
+];
+
+// ===== 类别映射 =====
+const CAT_MAP = {
+    chem: { name: "化学基础", icon: "⚗️", color: "chem" },
+    phys: { name: "功和能", icon: "⚡", color: "phys" },
+    metal: { name: "金属", icon: "🔩", color: "metal" }
+};
+
+// ===== 状态管理 =====
+let state = {
+    keyword: "",
+    category: "all",
+    sort: "default"
+};
+
+// ===== 工具函数 =====
+function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function highlightText(text, keyword) {
+    if (!keyword) return text;
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    return text.replace(regex, '<span class="highlight">$1</span>');
+}
+
+function getPlainText(item) {
+    let text = item.title + " ";
+    if (item.body) text += item.body.replace(/<[^>]+>/g, '') + " ";
+    if (item.keywords) text += item.keywords.join(" ") + " ";
+    if (item.table) {
+        text += item.table.headers.join(" ") + " ";
+        item.table.rows.forEach(row => text += row.join(" ") + " ");
+    }
+    return text;
+}
+
+function getSnippet(item, keyword) {
+    if (!keyword) return null;
+    const plainText = getPlainText(item);
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(.{0,40})(${escaped})(.{0,60})`, 'gi');
+    const match = regex.exec(plainText);
+    if (match) {
+        let snippet = (match[1] ? "..." + match[1] : "") + match[2] + (match[3] ? match[3] + "..." : "");
+        snippet = highlightText(escapeHtml(snippet), keyword);
+        return snippet;
+    }
+    return null;
+}
+
+function matchesKeyword(item, keyword) {
+    if (!keyword) return true;
+    const text = getPlainText(item).toLowerCase();
+    return text.includes(keyword.toLowerCase());
+}
+
+function matchesCategory(item, category) {
+    if (category === "all") return true;
+    return item.cat === category;
+}
+
+// ===== 排序函数 =====
+function sortItems(items, sortMode) {
+    const sorted = [...items];
+    switch(sortMode) {
+        case "category":
+            return sorted.sort((a, b) => {
+                const catOrder = { chem: 1, phys: 2, metal: 3 };
+                return catOrder[a.cat] - catOrder[b.cat] || a.id - b.id;
+            });
+        case "type":
+            return sorted.sort((a, b) => a.type.localeCompare(b.type, 'zh') || a.id - b.id);
+        case "title":
+            return sorted.sort((a, b) => a.title.localeCompare(b.title, 'zh') || a.id - b.id);
+        default:
+            return sorted.sort((a, b) => a.id - b.id);
+    }
+}
+
+// ===== 渲染函数 =====
+function renderItem(item, keyword) {
+    const catInfo = CAT_MAP[item.cat];
+    let bodyHtml = "";
+
+    if (item.body) {
+        bodyHtml = keyword ? highlightText(item.body, keyword) : item.body;
+    }
+
+    if (item.table) {
+        const tableHtml = renderTable(item.table, keyword);
+        bodyHtml += (bodyHtml ? "<p>&nbsp;</p>" : "") + tableHtml;
+    }
+
+    let snippetHtml = "";
+    if (keyword) {
+        const snippet = getSnippet(item, keyword);
+        if (snippet) {
+            snippetHtml = `<div class="search-snippet">${snippet}</div>`;
+        }
+    }
+
+    return `
+    <article class="content-item cat-${item.cat}" data-id="${item.id}">
+        <div class="item-header">
+            <span class="item-tag">${catInfo.icon} ${catInfo.name}</span>
+            <span class="item-type">${item.type}</span>
+            <span class="item-title">${keyword ? highlightText(escapeHtml(item.title), keyword) : escapeHtml(item.title)}</span>
+        </div>
+        <div class="item-body">
+            ${bodyHtml}
+            ${snippetHtml}
+        </div>
+    </article>`;
+}
+
+function renderTable(table, keyword) {
+    const processCell = (text) => {
+        const safe = escapeHtml(text);
+        return keyword ? highlightText(safe, keyword) : safe;
+    };
+
+    let html = '<div class="item-table-wrapper"><table class="item-table"><thead><tr>';
+    table.headers.forEach(h => {
+        html += `<th>${processCell(h)}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+    table.rows.forEach(row => {
+        html += '<tr>';
+        row.forEach(cell => {
+            html += `<td>${processCell(cell)}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    return html;
+}
+
+function renderContent() {
+    const area = document.getElementById("contentArea");
+
+    // 过滤
+    let filtered = DATA.filter(item =>
+        matchesCategory(item, state.category) && matchesKeyword(item, state.keyword)
+    );
+
+    // 排序
+    filtered = sortItems(filtered, state.sort);
+
+    // 统计
+    const countEl = document.getElementById("resultCount");
+    if (state.keyword || state.category !== "all") {
+        countEl.innerHTML = `共 <strong>${filtered.length}</strong> 条结果`;
+    } else {
+        countEl.innerHTML = `共 <strong>${filtered.length}</strong> 条内容`;
+    }
+
+    // 渲染
+    if (filtered.length === 0) {
+        area.innerHTML = `
+        <div class="no-results">
+            <div class="no-results-icon">🔍</div>
+            <h3>未找到匹配内容</h3>
+            <p>试试更换关键词，或切换类别筛选</p>
+        </div>`;
+        return;
+    }
+
+    let html = "";
+    if (state.keyword) {
+        html += `<div class="search-stats">📌 搜索 "${escapeHtml(state.keyword)}" — 找到 ${filtered.length} 条相关内容</div>`;
+    }
+    filtered.forEach(item => {
+        html += renderItem(item, state.keyword);
+    });
+    area.innerHTML = html;
+}
+
+// ===== 事件绑定 =====
+// 搜索输入（防抖）
+let searchTimer = null;
+document.getElementById("searchInput").addEventListener("input", function(e) {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+        state.keyword = e.target.value.trim();
+        renderContent();
+    }, 150);
+});
+
+// 类别筛选 - 导航栏
+document.querySelectorAll(".nav-tab").forEach(tab => {
+    tab.addEventListener("click", function() {
+        document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+
+        const nav = this.dataset.nav;
+        state.category = nav;
+
+        // 同步 chips
+        document.querySelectorAll(".chip").forEach(c => {
+            c.classList.toggle("active", c.dataset.cat === nav);
+        });
+
+        renderContent();
+    });
+});
+
+// 类别筛选 - chips
+document.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", function() {
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        this.classList.add("active");
+
+        const cat = this.dataset.cat;
+        state.category = cat;
+
+        // 同步 nav tabs
+        document.querySelectorAll(".nav-tab").forEach(t => {
+            t.classList.toggle("active", t.dataset.nav === cat);
+        });
+
+        renderContent();
+    });
+});
+
+// 排序
+document.getElementById("sortSelect").addEventListener("change", function(e) {
+    state.sort = e.target.value;
+    renderContent();
+});
+
+// 回到顶部
+const backToTop = document.getElementById("backToTop");
+window.addEventListener("scroll", function() {
+    backToTop.classList.toggle("visible", window.scrollY > 300);
+});
+backToTop.addEventListener("click", function() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// 键盘快捷键：/ 聚焦搜索
+document.addEventListener("keydown", function(e) {
+    if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
+        e.preventDefault();
+        document.getElementById("searchInput").focus();
+    }
+    if (e.key === "Escape") {
+        const input = document.getElementById("searchInput");
+        if (input.value) {
+            input.value = "";
+            state.keyword = "";
+            renderContent();
+        }
+    }
+});
+
+// 初始渲染
+renderContent();
+</script>
+
+</body>
+</html>
