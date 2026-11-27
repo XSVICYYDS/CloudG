@@ -1,0 +1,15 @@
+name = "cloudg-file-library"
+compatibility_date = "2026-11-13"
+pages_build_output_dir = "./site"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cloudg-credentials"
+database_id = "d0430bae-747a-4ac9-84cb-b8dde119631b"
+migrations_dir = "workers/migrations"
+
+[vars]
+ALLOWED_ORIGINS = "https://xsvicyyds.github.io,https://cloudg-file-library.pages.dev"
+GITHUB_REPOSITORY = "XSVICYYDS/CloudG"
+GITHUB_BRANCH = "main"
+GITHUB_UPLOAD_DIRECTORY = "uploads"
