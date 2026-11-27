@@ -1,0 +1,64 @@
+name: Deploy Cloudflare Pages mirror
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [download-source-updated]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v4
+
+      - name: Resolve download source
+        id: source
+        shell: bash
+        env:
+          DOWNLOAD_REPOSITORY: ${{ vars.DOWNLOAD_REPOSITORY }}
+          DOWNLOAD_REF: ${{ vars.DOWNLOAD_REF }}
+          DISPATCH_REF: ${{ github.event.client_payload.ref }}
+        run: |
+          echo "repository=${DOWNLOAD_REPOSITORY:-$GITHUB_REPOSITORY}" >> "$GITHUB_OUTPUT"
+          echo "ref=${DOWNLOAD_REF:-${DISPATCH_REF:-$GITHUB_REF_NAME}}" >> "$GITHUB_OUTPUT"
+
+      - name: Check out download source
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.source.outputs.repository }}
+          ref: ${{ steps.source.outputs.ref }}
+          path: download-source
+          fetch-depth: 0
+          token: ${{ secrets.DOWNLOAD_SOURCE_TOKEN || github.token }}
+
+      - name: Generate file index
+        env:
+          DOWNLOAD_PATH: ${{ vars.DOWNLOAD_PATH }}
+          DOWNLOAD_IGNORE: ${{ vars.DOWNLOAD_IGNORE }}
+        run: |
+          args=(--source download-source --repository "${{ steps.source.outputs.repository }}" --ref "${{ steps.source.outputs.ref }}")
+          if [ -n "$DOWNLOAD_PATH" ]; then args+=(--subdir "$DOWNLOAD_PATH"); fi
+          if [ -n "$DOWNLOAD_IGNORE" ]; then args+=(--ignore "$DOWNLOAD_IGNORE"); fi
+          node scripts/generate-index.mjs "${args[@]}"
+
+      - name: Configure same-origin API
+        run: node -e "const fs=require('node:fs');const p='site/config.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));c.apiUrl='';fs.writeFileSync(p,JSON.stringify(c,null,2)+'\n')"
+
+      - name: Deploy Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site --project-name=cloudg-file-library --branch=${{ github.ref_name }}

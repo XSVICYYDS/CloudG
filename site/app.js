@@ -47,6 +47,7 @@ let previewObjectUrl = "";
 let previewRequest = null;
 
 const MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
+const apiEndpoint = (path) => `${config.apiUrl || location.origin}${path}`;
 const PREVIEW_LIMITS = {
   text: 1 * 1024 * 1024,
   image: 20 * 1024 * 1024,
@@ -341,7 +342,7 @@ authForm.addEventListener("submit", (event) => {
   const submitButton = authForm.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   setAuthMessage("正在验证访问密钥…");
-  fetch(`${config.apiUrl}/api/auth`, {
+  fetch(apiEndpoint("/api/auth"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ key: authInput.value })
@@ -778,7 +779,7 @@ function downloadFile(file) {
 function uploadFile(file, token, onProgress) {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
-    request.open("POST", `${config.apiUrl}/api/upload`);
+    request.open("POST", apiEndpoint("/api/upload"));
     request.setRequestHeader("Authorization", "Bearer " + token);
     request.setRequestHeader("Content-Type", file.type || "application/octet-stream");
     request.setRequestHeader("X-File-Name", encodeURIComponent(file.name));
@@ -882,10 +883,12 @@ async function start() {
       throw new Error("网站配置无效");
     }
     config.apiUrl = config.apiUrl.trim().replace(/\/+$/, "");
-    const apiUrl = new URL(config.apiUrl);
-    if (apiUrl.protocol !== "https:" || apiUrl.username || apiUrl.password
-        || apiUrl.search || apiUrl.hash || apiUrl.pathname !== "/") {
-      throw new Error("文件服务地址必须是 HTTPS Worker 根地址");
+    if (config.apiUrl) {
+      const apiUrl = new URL(config.apiUrl);
+      if (apiUrl.protocol !== "https:" || apiUrl.username || apiUrl.password
+          || apiUrl.search || apiUrl.hash || apiUrl.pathname !== "/") {
+        throw new Error("文件服务地址必须是 HTTPS Worker 根地址");
+      }
     }
     uploadButton.hidden = false;
     setAuthFormEnabled(true);

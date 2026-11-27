@@ -6,11 +6,12 @@ const BASE_LOCK_MS = 60_000;
 
 function corsHeaders(request, env) {
   const origin = request.headers.get("Origin");
+  const requestOrigin = new URL(request.url).origin;
   const allowedOrigins = (env.ALLOWED_ORIGINS || "")
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
-  if (origin && (!allowedOrigins.length || !allowedOrigins.includes(origin))) return null;
+  if (origin && origin !== requestOrigin && !allowedOrigins.includes(origin)) return null;
 
   return {
     "Access-Control-Allow-Origin": origin || "*",

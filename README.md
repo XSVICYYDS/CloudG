@@ -8,6 +8,15 @@
 2. 打开仓库 **Settings → Pages → Build and deployment**，将 **Source** 设为 **GitHub Actions**。
 3. 工作流会生成文件索引并部署站点。首次部署完成后，页面地址会显示在 Actions 的部署任务和 Pages 设置中。
 
+原 GitHub Pages 站点会继续保留。另有可选的 Cloudflare Pages 同源 API 镜像，地址为 `https://cloudg-file-library.pages.dev`；GitHub Pages 继续使用 `workers.dev` API，Cloudflare Pages 镜像使用 `/api/*` Functions 路由。
+
+### 启用 Cloudflare Pages 镜像
+
+1. 在 Cloudflare 账号中创建 Pages 项目：`npx wrangler pages project create cloudg-file-library --production-branch main`。
+2. 在仓库 **Settings → Secrets and variables → Actions → Secrets** 中添加 `CLOUDFLARE_API_TOKEN`（具有 Pages 写入权限的 Cloudflare API Token）和 `CLOUDFLARE_ACCOUNT_ID`。`.github/workflows/cloudflare-pages.yml` 会在提交、手动运行和定时同步时部署镜像；原 GitHub Pages 工作流保持不变。
+3. Pages D1 绑定在根目录 `wrangler.toml` 中配置。为镜像项目设置 GitHub 写入 token：`npx wrangler pages secret put GITHUB_TOKEN --project-name cloudg-file-library`。使用仅对本仓库有 Contents 写入权限的 fine-grained token；不要提交或公开该 token。
+4. 推送到 `main`，等待 `Deploy Cloudflare Pages mirror` 工作流成功，然后使用 `https://cloudg-file-library.pages.dev`。该镜像生成的 `site/config.json` 会使用同源 `/api/*`，不经过 `workers.dev` 或 CORS。
+
 默认以本仓库 `main` 分支为下载源，索引包含所有已跟踪的普通文件，并忽略 `.github/`、`site/`、`scripts/`、`docs/`、`README.md` 和 `LICENSE`。修改 `main` 分支会触发重建；每小时也会执行一次同步。
 
 ### 使用独立下载源仓库（可选）
@@ -36,9 +45,9 @@
 ## 文件索引和下载
 
 - `scripts/generate-index.mjs` 根据下载源仓库已跟踪文件生成 `site/data/files.json`，并将文件复制到 `site/downloads/`；下载使用同源 Pages 地址，不再依赖浏览器直连 `raw.githubusercontent.com`。
-- 可选的 Cloudflare Worker 上传服务见 `workers/file-upload-worker.js`。网站访问密钥和上传密钥以带盐 PBKDF2-SHA-256 哈希保存于 D1；上传文件通过 GitHub Contents API 提交到 `uploads/`，随后由现有 Pages 工作流生成索引并发布。GitHub fine-grained token 仅需对网站仓库有 Contents 写入权限，并必须用 `wrangler secret put GITHUB_TOKEN` 设置为 Worker secret；不得放进 D1、网页配置或仓库文件。
+- API 实现在 `workers/file-upload-worker.js`，同一处理器由独立 Worker 和 `functions/api/[[path]].js` Pages Function 共用。网站访问密钥和上传密钥以带盐 PBKDF2-SHA-256 哈希保存于 D1；上传文件通过 GitHub Contents API 提交到 `uploads/`，随后由 GitHub Pages 与 Cloudflare Pages 工作流分别生成索引并发布。
 - 初始化：在 Cloudflare 创建 D1 数据库 `cloudg-credentials`，将数据库 ID 写入 `workers/wrangler.toml`，并在 `workers/` 目录运行 `npx wrangler d1 migrations apply cloudg-credentials --remote`。运行 `node setup-keys.mjs`，在终端提示中设置新的高强度网站访问密钥和上传密钥（至少 16 个字符）；脚本仅将 PBKDF2 盐值和哈希写入本地忽略文件 `workers/generated-keys.sql`，然后运行 `npx wrangler d1 execute cloudg-credentials --remote --file generated-keys.sql`。不要提交生成的 SQL 文件。
-- 设置 `workers/wrangler.toml` 的 `ALLOWED_ORIGINS` 为 Pages 网站来源（逗号分隔的 origin，不含路径），运行 `npx wrangler secret put GITHUB_TOKEN` 和 `npx wrangler deploy`。把 Worker 的 HTTPS 根地址填入 `site/config.json` 的 `apiUrl` 后发布 Pages。网站和上传密钥都在 D1 校验；上传使用独立上传密钥。每个文件上限为 10 MiB，以适配 Worker 和 GitHub Contents API 的请求体内存开销。
+- 若继续部署独立 Worker，运行 `npx wrangler secret put GITHUB_TOKEN` 和 `npx wrangler deploy`，并将 Worker 根地址填入 `site/config.json`。Cloudflare Pages 镜像则由根目录 `wrangler.toml` 绑定 D1，另需按上文设置 Pages 项目的 `GITHUB_TOKEN` secret；网站和上传密钥均在 D1 校验。每个文件上限为 10 MiB，以适配 Worker 和 GitHub Contents API 的请求体内存开销。
 - 上传后的文件会提交到仓库的 `uploads/` 目录，并在 Pages 工作流重建索引后显示。仓库及 Pages 上的文件是公开的；不要上传私密内容。
 - 文件列表支持搜索、类型筛选及名称、更新时间、文件大小排序；页面使用文本节点展示仓库内容，避免将文件名作为 HTML 执行。
 - 下载直接交给浏览器原生下载管理器，避免 JavaScript 逐块读取并写盘造成的速度开销；浏览器负责显示实时进度、暂停和续传。下载链接为 Pages 同源地址，不需要额外访问 GitHub 原始文件域名。
@@ -47,4 +56,4 @@
 
 ## 本地预览
 
-使用任意静态文件服务器将 `site/` 作为网站根目录提供服务（例如 `python -m http.server 8000 --directory site`），然后访问 `http://localhost:8000`。本地仓库索引可通过 `node scripts/generate-index.mjs --source . --repository XSVICYYDS/CloudG --ref main` 重新生成。
+使用 `npx wrangler pages dev site` 可在本地预览 Cloudflare Pages Functions。单纯的静态服务器（例如 `python -m http.server 8000 --directory site`）只适用于不需要登录和上传 API 的前端预览。本地仓库索引可通过 `node scripts/generate-index.mjs --source . --repository XSVICYYDS/CloudG --ref main` 重新生成。
